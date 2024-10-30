@@ -4,7 +4,7 @@ from flask.wrappers import Response
 from flask_login import login_user, logout_user, login_required
 
 from . import db
-from .models import Accounts
+from .models import Accounts, Clients, Employee
 
 
 routes = Blueprint("routes", __name__)
@@ -24,6 +24,28 @@ def register() -> tuple[Response, int]:
   user = Accounts(email=email, password=password, role=role)
   db.session.add(user)
   db.session.commit()
+
+  if role == "client":
+    print("Creating client account.")
+    firstname = data.get("firstname")
+    lastname = data.get("lastname")
+    telephone = data.get("telephone")
+    client = Clients(account_id=user.account_id, firstname=firstname,
+                     lastname=lastname, telephone=telephone)
+    db.session.add(client)
+    db.session.commit()
+  elif role == "employee":
+    print("Creating employee account.")
+    firstname = data.get("firstname")
+    lastname = data.get("lastname")
+    telephone = data.get("telephone")
+    position = data.get("position")
+    is_available = data.get("is_available")
+    employee = Employee(account_id=user.account_id, firstname=firstname,
+                        lastname=lastname, telephone=telephone,
+                        position=position, is_available=is_available)
+    db.session.add(employee)
+    db.session.commit()
 
   return jsonify({"message": "User registered successfully!"}), 201
 
