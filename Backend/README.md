@@ -20,6 +20,20 @@ Move to the backend directory:
 
 ### `pip install -r requirements.txt`
 
+## Create environmental variables
+
+In modules directory create `.env` file. Define secret key and database credentials inside this file.
+
+Example file content:
+
+```
+SECRET_KEY=xyz #you can type anything
+DB_USER=postgres
+DB_PASSWORD=your_password
+DB_URL=localhost
+DB_DBNAME=your_db_name
+```
+
 ## Run Flask server
 
 ### `python app.py`
