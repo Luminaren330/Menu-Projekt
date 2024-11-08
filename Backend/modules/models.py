@@ -96,9 +96,8 @@ class Categories(db.Model, UserMixin):
   category_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
   name = db.Column(db.String(150), nullable=False)
 
-  def __init__(self, category_id: int, name: str) -> None:
+  def __init__(self, name: str) -> None:
     """ Class constructor """
-    self.category_id = category_id
     self.name = name
 
   def __repr__(self) -> str:
@@ -163,9 +162,8 @@ class Ingredients(db.Model, UserMixin):
   ingredient_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
   name = db.Column(db.String(70), nullable=False)
 
-  def __init__(self, ingredient_id: int, name: str) -> None:
+  def __init__(self, name: str) -> None:
     """ Class constructor """
-    self.ingredient_id = ingredient_id
     self.name = name
 
   def __repr__(self) -> str:
@@ -183,7 +181,7 @@ class OrderItems(db.Model, UserMixin):
   order_id = db.Column(db.Integer, db.ForeignKey("orders.order_id"),
                        nullable=False)
   dish_id = db.Column(db.Integer, db.ForeignKey("dishes.dish_id"),
-                       nullable=False)
+                      nullable=False)
   quantity = db.Column(db.Integer, nullable=False)
   price = db.Column(db.Float, nullable=False)
 
@@ -214,15 +212,15 @@ class Orders(db.Model, UserMixin):
   """ Orders table configuration. """
   order_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
   table_id = db.Column(db.Integer, db.ForeignKey("tables.table_id"),
-                       nullable=False)
+                       nullable=True)
   account_id = db.Column(db.Integer, db.ForeignKey("accounts.account_id"),
                          nullable=False)
   total_price = db.Column(db.Float, nullable=False)
-  take_away = db.Column(db.Boolean, nullable=False, default=False)
+  take_away_time = db.Column(db.DateTime, nullable=True)
+  table_reservation_start_time = db.Column(db.DateTime, nullable=True)
+  table_reservation_end_time = db.Column(db.DateTime, nullable=True)
   order_status = db.Column(db.String(50), nullable=False)
   order_date = db.Column(db.DateTime, nullable=False, default=datetime.now)
-  update_date = db.Column(db.DateTime, nullable=False, onupdate=datetime.now)
-
   table = db.relationship("Tables", backref="orders", lazy=True)
   account = db.relationship("Accounts", backref="orders", lazy=True)
 
@@ -254,18 +252,18 @@ class Reviews(db.Model, UserMixin):
   """ Reviews table configuration. """
   review_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
   dish_id = db.Column(db.Integer, db.ForeignKey("dishes.dish_id"),
-                       nullable=False)
+                      nullable=False)
   account_id = db.Column(db.Integer, db.ForeignKey("accounts.account_id"),
                          nullable=False)
-  stars = db.Column(db.Integer, nullable=False)
+  stars = db.Column(db.Float, nullable=False)
   comment = db.Column(db.String(150), nullable=False, default=False)
 
   dish = db.relationship("Dishes", backref="reviews", lazy=True)
   account = db.relationship("Accounts", backref="reviews", lazy=True)
 
   def __init__(
-      self, review_id: int, dish_id: int, account_id: int, stars: int,
-      comment: str
+    self, review_id: int, dish_id: int, account_id: int, stars: float,
+    comment: str
   ) -> None:
     """ Class constructor """
     self.review_id = review_id
@@ -288,8 +286,9 @@ class Tables(db.Model, UserMixin):
   table_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
   capacity = db.Column(db.Integer, nullable=False)
   is_available = db.Column(db.Boolean, nullable=False, default=True)
+  description = db.Column(db.String(150), nullable=True)
 
-  def __init__( self, table_id: int, capacity: int, is_available: bool) -> None:
+  def __init__(self, table_id: int, capacity: int, is_available: bool) -> None:
     """ Class constructor """
     self.table_id = table_id
     self.capacity = capacity

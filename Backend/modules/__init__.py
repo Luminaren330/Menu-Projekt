@@ -7,6 +7,7 @@ from flask import Flask, jsonify
 from flask.wrappers import Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_migrate import Migrate
 from dotenv import load_dotenv
 
 
@@ -20,6 +21,7 @@ def create_app() -> Flask:
   from .models import Accounts
 
   app = Flask(__name__)
+  migrate = Migrate(app, db)
   db_user = os.getenv("DB_USER")
   db_password = os.getenv("DB_PASSWORD")
   db_url = os.getenv("DB_URL")
