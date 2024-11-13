@@ -1,0 +1,77 @@
+@import '../../App.scss';
+
+.container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 45px;
+    width: 80%;
+    background-color: white !important;
+    border-radius: 20px;
+}
+
+.menuHeader { 
+    color: rgb(163, 9, 186);
+    text-align: center;
+    font-size: 40px;
+    margin-top: 10px;
+}
+
+
+.menuItems {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    padding: 5px;
+}
+
+.orderTable {
+    width: 100%;
+    text-align: left;
+    border: 1px solid black;
+    margin-bottom: 20px;
+    border-collapse: collapse;
+}
+.orderTable thead {
+    background-color: red;
+}
+.orderTable th {
+    color: white;
+    background-color: rgb(163, 9, 186);
+    padding: 15px;
+    border-right: 1px solid black;
+    font-weight: bold;
+}
+
+.orderTable td {
+    border: 1px solid black;
+    padding: 5px;
+
+}
+
+.deleteButton { 
+    color: white;
+    background-color: rgb(163, 9, 186);
+    border-radius: 15px;
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+}
+
+@media screen and (max-width: 750px) {
+    .menu {
+        width: 100%;
+    }
+    .menuItems {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}

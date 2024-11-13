@@ -3,8 +3,8 @@ import React, { useState, useContext } from "react";
 const GlobalContext = React.createContext();
 
 const Context = ({ children }) => {
-  const [isLogedIn, setIsLogedIn] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isLogedIn, setIsLogedIn] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(true);
 
   return (
     <GlobalContext.Provider
