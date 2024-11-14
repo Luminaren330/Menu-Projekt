@@ -6,6 +6,7 @@ from flask_login import UserMixin
 from . import db
 
 
+# TODO: Zostawić UserMixin tylko w Accounts, get_id też tylko w Accounts
 class Accounts(db.Model, UserMixin):
   """ Accounts table configuration. """
   account_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -121,27 +122,22 @@ dishes_ingredients = db.Table(
 class Dishes(db.Model, UserMixin):
   """ Dishes table configuration. """
   dish_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-  ingredient_id = db.Column(db.Integer,
-                            db.ForeignKey("ingredients.ingredient_id"),
-                            nullable=False)
   category_id = db.Column(db.Integer, db.ForeignKey("categories.category_id"),
                           nullable=False)
-  name = db.Column(db.String(70), nullable=False)
+  name = db.Column(db.String(250), nullable=False)
   price = db.Column(db.Float, nullable=False)
-  photo_url = db.Column(db.String(15), nullable=False)
-  description = db.Column(db.String(40), nullable=False)
+  photo_url = db.Column(db.String(2500), nullable=False)
+  description = db.Column(db.String(350), nullable=False)
 
   ingredients = db.relationship("Ingredients", secondary=dishes_ingredients,
                                 backref="dishes", lazy="dynamic")
   category = db.relationship("Categories", backref="dishes", lazy=True)
 
   def __init__(
-      self, dish_id: int, ingredient_id: int, category_id: int, name: str,
+      self, category_id: int, name: str,
       price: float, photo_url: str, description: str
   ) -> None:
     """ Class constructor """
-    self.dish_id = dish_id
-    self.ingredient_id = ingredient_id
     self.category_id = category_id
     self.name = name
     self.price = price
@@ -189,14 +185,13 @@ class OrderItems(db.Model, UserMixin):
   dish = db.relationship("Dishes", backref="order_items", lazy=True)
 
   def __init__(
-      self, item_id: int, order_id: int, dish_id: int, qunatity: int,
+      self, order_id: int, dish_id: int, quantity: int,
       price: float
   ) -> None:
     """ Class constructor """
-    self.item_id = item_id
     self.order_id = order_id
     self.dish_id = dish_id
-    self.quantity = qunatity
+    self.quantity = quantity
     self.price = price
 
   def __repr__(self) -> str:
@@ -221,23 +216,25 @@ class Orders(db.Model, UserMixin):
   table_reservation_end_time = db.Column(db.DateTime, nullable=True)
   order_status = db.Column(db.String(50), nullable=False)
   order_date = db.Column(db.DateTime, nullable=False, default=datetime.now)
+
   table = db.relationship("Tables", backref="orders", lazy=True)
   account = db.relationship("Accounts", backref="orders", lazy=True)
 
   def __init__(
-      self, order_id: int, table_id: int, account_id: int, total_price: float,
-      take_away: bool, order_status: str, order_date: datetime,
-      update_date: datetime
+      self, account_id: int, total_price: float, order_status: str,
+      order_date: datetime = None, table_start_time: datetime = None,
+      table_end_time: datetime = None, table_id: int = None,
+      take_away_time: datetime = None
   ) -> None:
     """ Class constructor """
-    self.order_id: order_id
     self.table_id = table_id
     self.account_id = account_id
     self.total_price = total_price
-    self.take_away = take_away
+    self.take_away_time = take_away_time
     self.order_status = order_status
     self.order_date = order_date
-    self.update_date = update_date
+    self.table_reservation_start_time = table_start_time
+    self.table_reservation_end_time = table_end_time
 
   def __repr__(self) -> str:
     """ Returns order total price and order date. """
@@ -262,11 +259,10 @@ class Reviews(db.Model, UserMixin):
   account = db.relationship("Accounts", backref="reviews", lazy=True)
 
   def __init__(
-    self, review_id: int, dish_id: int, account_id: int, stars: float,
+    self, dish_id: int, account_id: int, stars: float,
     comment: str
   ) -> None:
     """ Class constructor """
-    self.review_id = review_id
     self.dish_id = dish_id
     self.account_id = account_id
     self.stars = stars
@@ -285,18 +281,17 @@ class Tables(db.Model, UserMixin):
   """ Tables table configuration. """
   table_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
   capacity = db.Column(db.Integer, nullable=False)
-  is_available = db.Column(db.Boolean, nullable=False, default=True)
   description = db.Column(db.String(150), nullable=True)
 
-  def __init__(self, table_id: int, capacity: int, is_available: bool) -> None:
+  def __init__(
+    self, capacity: int, description: str) -> None:
     """ Class constructor """
-    self.table_id = table_id
     self.capacity = capacity
-    self.is_available = is_available
+    self.description = description
 
   def __repr__(self) -> str:
     """ Returns table capacity and status. """
-    return f"Table('{self.capacity}', '{self.is_available}')"
+    return f"Table('{self.capacity}', '{self.description}')"
 
   def get_id(self) -> int:
     """ Returns table id. """
