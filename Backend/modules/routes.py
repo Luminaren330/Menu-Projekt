@@ -3,13 +3,18 @@ from datetime import datetime, timedelta
 
 from flask import request, jsonify, Blueprint, abort
 from flask.wrappers import Response
-from flask_login import login_user, logout_user, login_required, current_user
-from sqlalchemy import or_, and_
+from flask_login import login_required, current_user
 
 from . import db
 from .models import (
-  Accounts, Clients, Employee, Categories, Ingredients, Tables, Dishes,
-  Orders, OrderItems, Reviews
+  Categories, Ingredients, Tables, Dishes, Orders, OrderItems, Reviews
+)
+from .get_methods import (
+  get_categories, get_ingredients, get_tables, get_dishes, get_orders,
+  get_reviews
+)
+from .post_methods import (
+  register_user, log_in_user, log_out_user, add_new_category
 )
 
 
@@ -28,40 +33,7 @@ def register() -> tuple[Response, int]:
   To register admin account pass to the endpoint body following data:
   email, password, role="admin".
   """
-  data = request.get_json()
-  email = data.get("email")
-  password = data.get("password")
-  role = data.get("role")
-
-  if Accounts.query.filter_by(email=email).first():
-    return jsonify({"message": "Email is already in use!"}), 400
-
-  user = Accounts(email=email, password=password, role=role)
-  db.session.add(user)
-  db.session.commit()
-
-  if role == "client":
-    print("Creating client account.")
-    firstname = data.get("firstname")
-    lastname = data.get("lastname")
-    telephone = data.get("telephone")
-    client = Clients(account_id=user.account_id, firstname=firstname,
-                     lastname=lastname, telephone=telephone)
-    db.session.add(client)
-    db.session.commit()
-  elif role == "employee":
-    print("Creating employee account.")
-    firstname = data.get("firstname")
-    lastname = data.get("lastname")
-    telephone = data.get("telephone")
-    position = data.get("position")
-    is_available = data.get("is_available")
-    employee = Employee(account_id=user.account_id, firstname=firstname,
-                        lastname=lastname, telephone=telephone,
-                        position=position, is_available=is_available)
-    db.session.add(employee)
-    db.session.commit()
-
+  register_user()
   return jsonify({"message": "User registered successfully!"}), 201
 
 
@@ -71,24 +43,16 @@ def login() -> tuple[Response, int]:
   User login endpoint.
   To login user pass to the endpoint body following data: email, password.
   """
-  data = request.get_json()
-  email = data.get("email")
-  password = data.get("password")
-
-  user = Accounts.query.filter_by(email=email).first()
-  if user and user.password == password:
-    login_user(user)
-    return jsonify({"message": "Logged in successfully!"}), 200
-  else:
-    return jsonify({"message": "Login failed! Check email and password."}), 401
+  message, status_code = log_in_user()
+  return jsonify({"message": message}), status_code
 
 
 @routes.route("/logout", methods=["POST"])
 @login_required
 def logout() -> tuple[Response, int]:
   """ User logout endpoint. """
-  logout_user()
-  return jsonify({"message": "User logged out successfully!"}), 200
+  message, status_code = log_out_user()
+  return jsonify({"message": message}), status_code
 
 
 @routes.route("/categories", methods=["GET", "POST"])
@@ -102,22 +66,11 @@ def manage_categories() -> tuple[Response, int]:
   can retrieve this data.
   """
   if request.method == "GET":
-    categories = Categories.query.with_entities(Categories.name).all()
-    response = {"count": len(categories), "records": []}
-    categories_to_return = [{"name": category.name} for category in categories]
-    response["records"] = categories_to_return
+    response = get_categories()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    if current_user.role != "admin":
-      abort(403)
-    data = request.get_json()
-    name = data.get("name")
-    category = Categories(name=name)
-    db.session.add(category)
-    db.session.commit()
-    return jsonify({"message": "Successfully added new category!"}), 201
+    message, status_code = add_new_category()
+    return jsonify({"message": message}), status_code
 
 
 @routes.route("/ingredients", methods=["GET", "POST"])
@@ -131,11 +84,7 @@ def manage_ingredients() -> tuple[Response, int]:
   can retrieve this data.
   """
   if request.method == "GET":
-    ingredients = Ingredients.query.with_entities(Ingredients.name).all()
-    response = {"count": len(ingredients), "records": []}
-    ingredients_to_return = [
-      {"name": ingredient.name} for ingredient in ingredients]
-    response["records"] = ingredients_to_return
+    response = get_ingredients()
     return jsonify(response), 200
   elif request.method == "POST":
     if not current_user.is_authenticated:
@@ -162,44 +111,7 @@ def manage_tables() -> tuple[Response, int]:
   (%Y-%m-%d %H:%M:%S).
   """
   if request.method == "GET":
-    start_time = request.args.get("start_time", datetime(1970, 1, 1, 0, 0, 0))
-    if start_time != datetime(1970, 1, 1, 0, 0, 0):
-      start_time = datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
-    end_time = start_time + timedelta(hours=2)
-    tables = (
-      db.session.query(
-        Tables.table_id, Tables.description, Tables.capacity,
-        db.case(
-          (
-            or_(
-              and_(
-                Orders.table_reservation_start_time <= end_time,
-                Orders.table_reservation_start_time >= start_time
-              ),
-              and_(
-                Orders.table_reservation_end_time <= end_time,
-                Orders.table_reservation_end_time >= start_time
-              ),
-              and_(
-                Orders.table_reservation_start_time <= start_time,
-                Orders.table_reservation_end_time >= end_time
-              )
-            ),
-            False
-          ),
-          else_=True
-        ).label("is_available")
-      )
-    ).outerjoin(Orders, Tables.table_id == Orders.table_id).all()
-    response = {"count": len(tables), "records": []}
-    tables_to_return = [
-      {
-        "table_id": table.table_id,
-        "capacity": table.capacity,
-        "description": table.description,
-        "is_available": table.is_available
-      } for table in tables]
-    response["records"] = tables_to_return
+    response = get_tables()
     return jsonify(response), 200
   elif request.method == "POST":
     if not current_user.is_authenticated:
@@ -228,17 +140,7 @@ def manage_dishes() -> tuple[Response, int]:
   can retrieve this data.
   """
   if request.method == "GET":
-    dishes = Dishes.query.all()
-    response = {"count": len(dishes), "records": []}
-    dishes_to_return = [{
-      "name": dish.name,
-      "category": dish.category.name,
-      "ingredients": [ingredient.name for ingredient in dish.ingredients],
-      "price": dish.price,
-      "photo_url": dish.photo_url,
-      "description": dish.description
-    } for dish in dishes]
-    response["records"] = dishes_to_return
+    response = get_dishes()
     return jsonify(response), 200
   elif request.method == "POST":
     if not current_user.is_authenticated:
@@ -281,55 +183,7 @@ def manage_orders() -> tuple[Response, int]:
   retrieve this data.
   """
   if request.method == "GET":
-    try:
-      take_away = request.args.get("take_away", None).lower()
-    except AttributeError:
-      take_away = None
-    try:
-      account_id = request.args.get("account_id", None).lower()
-    except AttributeError:
-      account_id = None
-    conditions = []
-
-    if take_away == "true":
-      conditions.append(Orders.take_away_time.isnot(None))
-    elif take_away == "false":
-      conditions.append(Orders.take_away_time.is_(None))
-    if account_id:
-      conditions.append(Orders.account_id == account_id)
-
-    orders = Orders.query.with_entities(
-      Orders.order_id, Orders.table_id, Orders.total_price,
-      Orders.order_status, Orders.take_away_time,
-      Orders.table_reservation_start_time, Orders.table_reservation_end_time,
-      Orders.order_date
-    ).filter(*conditions).all()
-    response = {"count": len(orders), "records": []}
-    orders_to_return = [
-      {
-        "table_id": order.table_id,
-        "total_price": order.total_price,
-        "order_status": order.order_status,
-        "take_away_time": order.take_away_time.strftime("%Y-%m-%d %H:%M:%S")
-        if order.take_away_time else None,
-        "table_reservation_start_time": order.table_reservation_start_time.
-        strftime("%Y-%m-%d %H:%M:%S") if order.table_reservation_start_time
-        else None,
-        "table_reservation_end_time": order.table_reservation_end_time.
-        strftime("%Y-%m-%d %H:%M:%S") if order.table_reservation_end_time
-        else None,
-        "order_items": [
-          {
-            "dish_name": Dishes.query.filter_by(
-              dish_id=order_item.dish_id).first().name,
-            "quantity": order_item.quantity,
-            "price_per_dish": order_item.price
-          }
-          for order_item in OrderItems.query.filter_by(
-            order_id=order.order_id).all()],
-        "order_date": order.order_date.strftime("%Y-%m-%d %H:%M:%S")
-      } for order in orders]
-    response["records"] = orders_to_return
+    response = get_orders()
     return jsonify(response), 200
   elif request.method == "POST":
     if not current_user.is_authenticated:
@@ -388,16 +242,7 @@ def manage_reviews() -> tuple[Response, int]:
   To retrieve all reviews use GET method. You have to pass query param dish_id.
   """
   if request.method == "GET":
-    dish_id = request.args.get("dish_id")
-    reviews = Reviews.query.filter_by(dish_id=dish_id).all()
-    response = {"count": len(reviews), "records": []}
-    reviews_to_return = [{
-      "dish": review.dish.name,
-      "user": review.account.email,
-      "stars": review.stars,
-      "comment": review.comment
-    } for review in reviews]
-    response["records"] = reviews_to_return
+    response = get_reviews()
     return jsonify(response), 200
   elif request.method == "POST":
     if not current_user.is_authenticated:
