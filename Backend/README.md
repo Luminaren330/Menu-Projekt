@@ -34,6 +34,19 @@ DB_URL=localhost
 DB_DBNAME=your_db_name
 ```
 
+## Database migration
+You have to make a migration when there are changes in the database schema.
+
+After changing the table in the `models.py` file, execute the following command:
+
+### `flask db migrate -m "Migration message"`
+
+Then you can apply the changes described by the migration script to your database using:
+
+### `flask db upgrade`
+
+Now you should see changed PSQL schema.
+
 ## Run Flask server
 
 ### `python app.py`
