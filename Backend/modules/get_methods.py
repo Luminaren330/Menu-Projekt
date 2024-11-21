@@ -1,7 +1,7 @@
 """ API GET functions. """
 from datetime import datetime, timedelta
 
-from flask import request
+from flask import request, session
 from sqlalchemy import or_, and_
 
 from . import db
@@ -86,6 +86,26 @@ def get_dishes() -> dict:
   } for dish in dishes]
   response["records"] = dishes_to_return
   return response
+
+
+def get_cart() -> dict:
+  """ Returns dictionary of order items. """
+  if cart := session.get("cart", []):
+    order_items_to_return = {"count": len(cart), "records": []}
+    for item in cart:
+      dish = Dishes.query.get(item.get("dish_id"))
+      dish_name = dish.name
+      dish_price = dish.price
+      quantity = item.get("quantity")
+      order_items_to_return["records"].append({
+        "dish_name": dish_name,
+        "price_per_item": dish_price,
+        "quantity": quantity
+      })
+    return order_items_to_return
+  else:
+    response = {"count": 0, "records": []}
+    return response
 
 
 def get_orders_to_return(orders: tuple) -> list:

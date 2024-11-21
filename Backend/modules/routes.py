@@ -1,17 +1,11 @@
 """ Routes file. """
-from datetime import datetime, timedelta
-
-from flask import request, jsonify, Blueprint, abort, session
+from flask import request, jsonify, Blueprint
 from flask.wrappers import Response
-from flask_login import login_required, current_user
+from flask_login import login_required
 
-from . import db
-from .models import (
-  Categories, Ingredients, Tables, Dishes, Orders, OrderItems, Reviews
-)
 from .get_methods import (
   get_categories, get_ingredients, get_tables, get_dishes, get_orders,
-  get_reviews
+  get_reviews, get_cart
 )
 from .post_methods import (
   register_user, log_in_user, log_out_user, add_new_category,
@@ -134,31 +128,15 @@ def manage_dishes() -> tuple[Response, int]:
 @routes.route("/carts", methods=["GET", "POST"])
 def manage_carts() -> tuple[Response, int]:
   """
-  Endpoint to add a dish to the cart (session-based).
-  Expected JSON:
-  {
-      "dish_id": 1,
-      "quantity": 2
-  }
+  Endpoint used to manage order cart.
+  To add order item to the cart user POST method. Pass the following data to
+  the endpoint: dish_id, quantity.
+  To retrieve all items in the cart use GET method.
+  Only authorized users can add new items to the cart and retrieve this data.
   """
   if request.method == "GET":
-    cart = session.get("cart", [])
-    if not cart:
-      response = {"count": 0, "records": []}
-      return jsonify(response), 200
-    else:
-      order_items_to_return = {"count": len(cart), "records": []}
-      for item in cart:
-        dish = Dishes.query.get(item.get("dish_id"))
-        dish_name = dish.name
-        dish_price = dish.price
-        quantity = item.get("quantity")
-        order_items_to_return["records"].append({
-          "dish_name": dish_name,
-          "price_per_item": dish_price,
-          "quantity": quantity
-        })
-      return jsonify(order_items_to_return), 200
+    response = get_cart()
+    return jsonify(response), 200
   elif request.method == "POST":
     message, status_code = add_new_order_item()
     return jsonify({"message": message}), status_code
