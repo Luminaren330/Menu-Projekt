@@ -1,11 +1,14 @@
 """ API POST functions. """
-from flask import request, jsonify, abort
+from datetime import datetime, timedelta
+
+from flask import request, jsonify, abort, session
 from flask.wrappers import Response
 from flask_login import login_user, logout_user, current_user
 
 from . import db
 from .models import (
-  Accounts, Clients, Employee, Categories
+  Accounts, Clients, Employee, Categories, Ingredients, Tables, Dishes,
+  Orders, OrderItems, Reviews
 )
 
 
@@ -85,3 +88,138 @@ def add_new_category() -> [str, int]:
   db.session.add(category)
   db.session.commit()
   return "Successfully added new category", 201
+
+
+def add_new_ingredient() -> [str, int]:
+  """ Inserts new ingredient to the database."""
+  if not current_user.is_authenticated:
+    abort(401)
+  if current_user.role != "admin":
+    abort(403)
+  data = request.get_json()
+  name = data.get("name")
+  ingredient = Ingredients(name=name)
+  db.session.add(ingredient)
+  db.session.commit()
+  return "Successfully added new ingredient!", 201
+
+
+def add_new_table() -> [str, int]:
+  """ Inserts new table to the database. """
+  if not current_user.is_authenticated:
+    abort(401)
+  if current_user.role != "admin":
+    abort(403)
+  data = request.get_json()
+  capacity = data.get("capacity")
+  description = data.get("description")
+  table = Tables(
+    capacity=capacity, description=description)
+  db.session.add(table)
+  db.session.commit()
+  return "Successfully added new table!", 201
+
+
+def add_new_dish() -> [str, int]:
+  """ Inserts new dish to the database. """
+  if not current_user.is_authenticated:
+    abort(401)
+  if current_user.role not in ["admin", "employee"]:
+    abort(403)
+  data = request.get_json()
+  category = data.get("category")
+  ingredients = data.get("ingredients")
+  name = data.get("name")
+  price = data.get("price")
+  photo_url = data.get("photo_url")
+  description = data.get("description")
+
+  category = Categories.query.filter_by(name=category).first()
+  ingredients = Ingredients.query.filter(
+    Ingredients.name.in_(ingredients)).all()
+  dish = Dishes(
+    category_id=category.category_id, name=name, price=price,
+    photo_url=photo_url, description=description)
+  dish.ingredients.extend(ingredients)
+
+  db.session.add(dish)
+  db.session.commit()
+  return "Successfully added new dish!", 201
+
+
+def add_new_order_item() -> [str, int]:
+  """ Inserts new order item to the database. """
+  if not current_user.is_authenticated:
+    abort(401)
+  data = request.get_json()
+  dish_id = data.get("dish_id")
+  quantity = data.get("quantity")
+  dish = Dishes.query.get(dish_id)
+  price = dish.price
+  cart = session.get("cart", [])
+  cart.append({"dish_id": dish_id, "quantity": quantity, "price": price})
+  session["cart"] = cart
+  return "Successfully added new cart!", 201
+
+
+def add_new_order() -> [str, int]:
+  """ Inserts new order to the database. """
+  if not current_user.is_authenticated:
+    abort(401)
+  data = request.get_json()
+  table_id = data.get("table_id")
+  account_id = current_user.get_id()
+  take_away_time = data.get("take_away_time")
+  table_start_time = data.get("table_reservation_start_time")
+  if take_away_time:
+    take_away_time = datetime.strptime(
+      take_away_time, "%Y-%m-%d %H:%M:%S")
+    table_start_time = None
+    table_end_time = None
+  else:
+    take_away_time = None
+    table_start_time = datetime.strptime(
+      table_start_time, "%Y-%m-%d %H:%M:%S")
+    table_end_time = table_start_time + timedelta(hours=2)
+  order_status = "new"
+  cart = session.get("cart", [])
+  if not cart:
+    return "Cart is empty", 400
+  total_price = sum(item["price"] * item["quantity"] for item in cart)
+  order = Orders(
+    table_id=table_id, account_id=account_id, total_price=total_price,
+    take_away_time=take_away_time,
+    table_start_time=table_start_time,
+    table_end_time=table_end_time, order_status=order_status
+  )
+  db.session.add(order)
+  db.session.commit()
+
+  for item in cart:
+    order_item = OrderItems(
+      order_id=order.order_id,
+      dish_id=item['dish_id'],
+      quantity=item['quantity'],
+      price=item['price']
+    )
+    db.session.add(order_item)
+  db.session.commit()
+  session.pop("cart", None)
+  return "Successfully added new order!", 201
+
+
+def add_new_review() -> [str, int]:
+  """ Inserts new review to the database. """
+  if not current_user.is_authenticated:
+    abort(401)
+  data = request.get_json()
+  dish_id = data.get("dish_id")
+  account_id = current_user.get_id()
+  stars = data.get("stars")
+  comment = data.get("comment")
+
+  review = Reviews(
+    dish_id=dish_id, account_id=account_id, stars=stars, comment=comment)
+  db.session.add(review)
+  db.session.commit()
+  return "Successfully added new review!", 201
