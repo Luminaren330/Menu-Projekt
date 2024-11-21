@@ -1,20 +1,16 @@
 """ Routes file. """
-from datetime import datetime, timedelta
-
-from flask import request, jsonify, Blueprint, abort
+from flask import request, jsonify, Blueprint
 from flask.wrappers import Response
-from flask_login import login_required, current_user
+from flask_login import login_required
 
-from . import db
-from .models import (
-  Categories, Ingredients, Tables, Dishes, Orders, OrderItems, Reviews
-)
 from .get_methods import (
   get_categories, get_ingredients, get_tables, get_dishes, get_orders,
-  get_reviews
+  get_reviews, get_cart
 )
 from .post_methods import (
-  register_user, log_in_user, log_out_user, add_new_category
+  register_user, log_in_user, log_out_user, add_new_category,
+  add_new_ingredient, add_new_table, add_new_dish, add_new_review,
+  add_new_order_item, add_new_order
 )
 
 
@@ -87,16 +83,8 @@ def manage_ingredients() -> tuple[Response, int]:
     response = get_ingredients()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    if current_user.role != "admin":
-      abort(403)
-    data = request.get_json()
-    name = data.get("name")
-    ingredient = Ingredients(name=name)
-    db.session.add(ingredient)
-    db.session.commit()
-    return jsonify({"message": "Successfully added new ingredient!"}), 201
+    message, status_code = add_new_ingredient()
+    return jsonify({"message": message}), status_code
 
 
 @routes.route("/tables", methods=["GET", "POST"])
@@ -114,18 +102,8 @@ def manage_tables() -> tuple[Response, int]:
     response = get_tables()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    if current_user.role != "admin":
-      abort(403)
-    data = request.get_json()
-    capacity = data.get("capacity")
-    description = data.get("description")
-    table = Tables(
-      capacity=capacity, description=description)
-    db.session.add(table)
-    db.session.commit()
-    return jsonify({"message": "Successfully added new table!"}), 201
+    message, status_code = add_new_table()
+    return jsonify({"message": message}), status_code
 
 
 @routes.route("/dishes", methods=["GET", "POST"])
@@ -143,29 +121,25 @@ def manage_dishes() -> tuple[Response, int]:
     response = get_dishes()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    if current_user.role not in ["admin", "employee"]:
-      abort(403)
-    data = request.get_json()
-    category = data.get("category")
-    ingredients = data.get("ingredients")
-    name = data.get("name")
-    price = data.get("price")
-    photo_url = data.get("photo_url")
-    description = data.get("description")
+    message, status_code = add_new_dish()
+    return jsonify({"message": message}), status_code
 
-    category = Categories.query.filter_by(name=category).first()
-    ingredients = Ingredients.query.filter(
-      Ingredients.name.in_(ingredients)).all()
-    dish = Dishes(
-      category_id=category.category_id, name=name, price=price,
-      photo_url=photo_url, description=description)
-    dish.ingredients.extend(ingredients)
 
-    db.session.add(dish)
-    db.session.commit()
-    return jsonify({"message": "Successfully added new dish!"}), 201
+@routes.route("/carts", methods=["GET", "POST"])
+def manage_carts() -> tuple[Response, int]:
+  """
+  Endpoint used to manage order cart.
+  To add order item to the cart user POST method. Pass the following data to
+  the endpoint: dish_id, quantity.
+  To retrieve all items in the cart use GET method.
+  Only authorized users can add new items to the cart and retrieve this data.
+  """
+  if request.method == "GET":
+    response = get_cart()
+    return jsonify(response), 200
+  elif request.method == "POST":
+    message, status_code = add_new_order_item()
+    return jsonify({"message": message}), status_code
 
 
 @routes.route("/orders", methods=["GET", "POST"])
@@ -186,51 +160,8 @@ def manage_orders() -> tuple[Response, int]:
     response = get_orders()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    data = request.get_json()
-    # orders
-    table_id = data.get("table_id")
-    account_id = current_user.get_id()
-    take_away_time = data.get("take_away_time")
-    table_start_time = data.get("table_reservation_start_time")
-    if take_away_time:
-      take_away_time = datetime.strptime(
-        take_away_time, "%Y-%m-%d %H:%M:%S")
-      table_start_time = None
-      table_end_time = None
-    else:
-      take_away_time = None
-      table_start_time = datetime.strptime(
-        table_start_time, "%Y-%m-%d %H:%M:%S")
-      table_end_time = table_start_time + timedelta(hours=2)
-    order_status = "new"
-
-    # order items
-    dishes = data.get("dishes")  # [[dish_id, quantity, price], ...]
-    total_price = round(sum(dish[2] * dish[1] for dish in dishes), 2)
-    order = Orders(
-      table_id=table_id, account_id=account_id, total_price=total_price,
-      take_away_time=take_away_time,
-      table_start_time=table_start_time,
-      table_end_time=table_end_time, order_status=order_status
-    )
-    db.session.add(order)
-    db.session.flush()
-
-    for dish in dishes:
-      dish_id = dish[0]
-      quantity = dish[1]
-      price = dish[2]
-      order_item = OrderItems(
-        order_id=order.order_id, dish_id=dish_id, quantity=quantity,
-        price=price
-      )
-      db.session.add(order_item)
-
-    db.session.commit()
-
-    return jsonify({"message": "Successfully added new order!"}), 201
+    message, status_code = add_new_order()
+    return jsonify({"message": message}), status_code
 
 
 @routes.route("/reviews", methods=["GET", "POST"])
@@ -245,16 +176,5 @@ def manage_reviews() -> tuple[Response, int]:
     response = get_reviews()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    data = request.get_json()
-    dish_id = data.get("dish_id")
-    account_id = current_user.get_id()
-    stars = data.get("stars")
-    comment = data.get("comment")
-
-    review = Reviews(
-      dish_id=dish_id, account_id=account_id, stars=stars, comment=comment)
-    db.session.add(review)
-    db.session.commit()
-    return jsonify({"message": "Successfully added new review!"}), 201
+    message, status_code = add_new_review()
+    return jsonify({"message": message}), status_code
