@@ -157,7 +157,10 @@ def add_new_order_item() -> [str, int]:
   dish = Dishes.query.get(dish_id)
   price = dish.price
   cart = session.get("cart", [])
-  cart.append({"dish_id": dish_id, "quantity": quantity, "price": price})
+  cart.append({
+    "item_id": len(cart), "dish_id": dish_id, "quantity": quantity,
+    "price": price
+  })
   session["cart"] = cart
   return "Successfully added new cart!", 201
 

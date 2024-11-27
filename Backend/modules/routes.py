@@ -12,6 +12,10 @@ from .post_methods import (
   add_new_ingredient, add_new_table, add_new_dish, add_new_review,
   add_new_order_item, add_new_order
 )
+from .delete_methods import (
+  delete_category, delete_ingredient, delete_table, delete_dish,
+  delete_order_item, delete_order, delete_review
+)
 
 
 routes = Blueprint("routes", __name__)
@@ -51,7 +55,7 @@ def logout() -> tuple[Response, int]:
   return jsonify({"message": message}), status_code
 
 
-@routes.route("/categories", methods=["GET", "POST"])
+@routes.route("/categories", methods=["GET", "POST", "DELETE"])
 def manage_categories() -> tuple[Response, int]:
   """
   Endpoint used to manage categories.
@@ -60,6 +64,8 @@ def manage_categories() -> tuple[Response, int]:
   ONLY admin user can add new categories.
   To retrieve all categories from table use GET method. Unauthorized users
   can retrieve this data.
+  To delete category use DELETE method. You have to pass query param
+  ?id=category_id. Only admin user can delete category.
   """
   if request.method == "GET":
     response = get_categories()
@@ -67,9 +73,12 @@ def manage_categories() -> tuple[Response, int]:
   elif request.method == "POST":
     message, status_code = add_new_category()
     return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_category()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/ingredients", methods=["GET", "POST"])
+@routes.route("/ingredients", methods=["GET", "POST", "DELETE"])
 def manage_ingredients() -> tuple[Response, int]:
   """
   Endpoint used to manage ingredients.
@@ -78,6 +87,8 @@ def manage_ingredients() -> tuple[Response, int]:
   ONLY admin user can add new ingredients.
   To retrieve all ingredients from table use GET method. Unauthorized users
   can retrieve this data.
+  To delete ingredient use DELETE method. You have to pass query param
+  ?id=ingredient_id. Only admin user can delete ingredient.
   """
   if request.method == "GET":
     response = get_ingredients()
@@ -85,9 +96,12 @@ def manage_ingredients() -> tuple[Response, int]:
   elif request.method == "POST":
     message, status_code = add_new_ingredient()
     return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_ingredient()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/tables", methods=["GET", "POST"])
+@routes.route("/tables", methods=["GET", "POST", "DELETE"])
 def manage_tables() -> tuple[Response, int]:
   """
   Endpoint used to manage tables.
@@ -97,6 +111,8 @@ def manage_tables() -> tuple[Response, int]:
   To retrieve all tables use GET method. Authorized users
   can retrieve this data. You have to pass query param start_time
   (%Y-%m-%d %H:%M:%S).
+  To delete table use DELETE method. You have to pass query param
+  ?id=table_id. Only admin user can delete table.
   """
   if request.method == "GET":
     response = get_tables()
@@ -104,9 +120,12 @@ def manage_tables() -> tuple[Response, int]:
   elif request.method == "POST":
     message, status_code = add_new_table()
     return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_table()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/dishes", methods=["GET", "POST"])
+@routes.route("/dishes", methods=["GET", "POST", "DELETE"])
 def manage_dishes() -> tuple[Response, int]:
   """
   Endpoint used to manage dishes.
@@ -116,6 +135,8 @@ def manage_dishes() -> tuple[Response, int]:
   Admin and employee user can add new dishes.
   To retrieve all dishes use GET method. Unauthorized users
   can retrieve this data.
+  To delete dish use DELETE method. You have to pass query param
+  ?id=dish_id.
   """
   if request.method == "GET":
     response = get_dishes()
@@ -123,9 +144,12 @@ def manage_dishes() -> tuple[Response, int]:
   elif request.method == "POST":
     message, status_code = add_new_dish()
     return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_dish()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/carts", methods=["GET", "POST"])
+@routes.route("/carts", methods=["GET", "POST", "DELETE"])
 def manage_carts() -> tuple[Response, int]:
   """
   Endpoint used to manage order cart.
@@ -133,6 +157,8 @@ def manage_carts() -> tuple[Response, int]:
   the endpoint: dish_id, quantity.
   To retrieve all items in the cart use GET method.
   Only authorized users can add new items to the cart and retrieve this data.
+  To delete order item use DELETE method. You have to pass query param
+  ?id=item_id.
   """
   if request.method == "GET":
     response = get_cart()
@@ -140,9 +166,12 @@ def manage_carts() -> tuple[Response, int]:
   elif request.method == "POST":
     message, status_code = add_new_order_item()
     return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_order_item()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/orders", methods=["GET", "POST"])
+@routes.route("/orders", methods=["GET", "POST", "DELETE"])
 def manage_orders() -> tuple[Response, int]:
   """
   Endpoint used to manage orders.
@@ -155,6 +184,8 @@ def manage_orders() -> tuple[Response, int]:
   To retrieve specific user's orders pass query param ?account_id=account_id.
   By not passing param all orders will be retrieved. Only authorized users can
   retrieve this data.
+  To delete order use DELETE method. You have to pass query param
+  ?id=order_id.
   """
   if request.method == "GET":
     response = get_orders()
@@ -162,19 +193,27 @@ def manage_orders() -> tuple[Response, int]:
   elif request.method == "POST":
     message, status_code = add_new_order()
     return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_order()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/reviews", methods=["GET", "POST"])
+@routes.route("/reviews", methods=["GET", "POST", "DELETE"])
 def manage_reviews() -> tuple[Response, int]:
   """
   Endpoint used to manage reviews.
   To add new review use POST method. Pass the following data to the endpoint
   dish_id, stars, comment. Only authorized users can add new review.
   To retrieve all reviews use GET method. You have to pass query param dish_id.
+  To delete review use DELETE method. You have to pass query param
+  ?id=review_id.
   """
   if request.method == "GET":
     response = get_reviews()
     return jsonify(response), 200
   elif request.method == "POST":
     message, status_code = add_new_review()
+    return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_review()
     return jsonify({"message": message}), status_code
