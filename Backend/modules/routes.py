@@ -17,7 +17,8 @@ from .delete_methods import (
   delete_order_item, delete_order, delete_review
 )
 from .update_methods import (
-  update_category, update_ingredient, update_table, update_dish
+  update_category, update_ingredient, update_table, update_dish,
+  update_review, update_order, update_order_item
 )
 
 
@@ -173,7 +174,7 @@ def manage_dishes() -> tuple[Response, int]:
     return jsonify({"message": message}), status_code
 
 
-@routes.route("/carts", methods=["GET", "POST", "DELETE"])
+@routes.route("/carts", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_carts() -> tuple[Response, int]:
   """
   Endpoint used to manage order cart.
@@ -193,9 +194,12 @@ def manage_carts() -> tuple[Response, int]:
   elif request.method == "DELETE":
     message, status_code = delete_order_item()
     return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_order_item()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/orders", methods=["GET", "POST", "DELETE"])
+@routes.route("/orders", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_orders() -> tuple[Response, int]:
   """
   Endpoint used to manage orders.
@@ -220,9 +224,12 @@ def manage_orders() -> tuple[Response, int]:
   elif request.method == "DELETE":
     message, status_code = delete_order()
     return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_order()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/reviews", methods=["GET", "POST", "DELETE"])
+@routes.route("/reviews", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_reviews() -> tuple[Response, int]:
   """
   Endpoint used to manage reviews.
@@ -240,4 +247,7 @@ def manage_reviews() -> tuple[Response, int]:
     return jsonify({"message": message}), status_code
   elif request.method == "DELETE":
     message, status_code = delete_review()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_review()
     return jsonify({"message": message}), status_code

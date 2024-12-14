@@ -1,12 +1,11 @@
 """ API PATCH endpoints """
-
+from datetime import datetime, timedelta
 
 from flask import request, session
 from flask_login import current_user
 
 from .models import (
-  Categories, Ingredients, Tables, Dishes, dishes_ingredients, Orders, Reviews,
-  OrderItems
+  Categories, Ingredients, Tables, Dishes, Orders, Reviews, OrderItems
 )
 from . import db
 
@@ -92,3 +91,74 @@ def update_dish() -> [str, int]:
     dish.price = data.get("price")
   db.session.commit()
   return f"Dish with id {dish.dish_id} updated!", 200
+
+
+def update_order() -> [str, int]:
+  """ Updates order in the database. """
+  if not current_user.is_authenticated:
+    return "Only authorized users can update an order!", 401
+  order_id = request.args.get("id")
+  data = request.get_json()
+  order = Orders.query.get(order_id)
+  if not order:
+    return "Order not found!", 404
+  if "table_id" in data:
+    order.table_id = data.get("table_id")
+  if "take_away_time" in data:
+    order.take_away_time = data.get("take_away_time")
+  if "table_reservation_start_time" in data:
+    start = data.get("table_reservation_start_time")
+    start = datetime.strptime(
+      start, "%Y-%m-%d %H:%M:%S")
+    end = start + timedelta(hours=2)
+    order.table_reservation_start_time = start
+    order.table_reservation_end_time = end
+  if "order_status" in data:
+    order.order_status = data.get("order_status")
+  db.session.commit()
+  return f"Order with id {order.order_id} updated!", 200
+
+
+def update_order_item() -> [str, int]:
+  """ Updates order item in the session. """
+  if not current_user.is_authenticated:
+    return "Only authorized users can update an order item!", 401
+  item_id = request.args.get("id")
+  data = request.get_json()
+  items = session.get("cart", [])
+  item_exists = any(item["item_id"] == int(item_id) for item in items)
+  if not item_exists:
+    return f"There is no item with id = {item_id} in a cart!", 404
+  for item in items:
+    if item["item_id"] == int(item_id):
+      if "dish_id" in data:
+        dish_id = data.get("dish_id")
+        try:
+          dish = Dishes.query.get(dish_id)
+          price = dish.price
+        except AttributeError:
+          return "Given dish id not found!", 404
+        item["dish_id"] = dish_id
+        item["price"] = price
+      if "quantity" in data:
+        quantity = data.get("quantity")
+        item["quantity"] = quantity
+  session["cart"] = items
+  return f"Order item with id {item_id} updated!", 200
+
+
+def update_review() -> [str, int]:
+  """ Updates table in the database. """
+  if not current_user.is_authenticated:
+    return "Only authorized users can update a review!", 401
+  review_id = request.args.get("id")
+  data = request.get_json()
+  review = Reviews.query.get(review_id)
+  if not review:
+    return "Review not found!", 404
+  if "stars" in data:
+    review.stars = data.get("stars")
+  if "comment" in data:
+    review.comment = data.get("comment")
+  db.session.commit()
+  return f"Review with id {review.review_id} updated!", 200
