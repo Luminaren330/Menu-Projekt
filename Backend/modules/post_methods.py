@@ -1,6 +1,7 @@
 """ API POST functions. """
 from datetime import datetime, timedelta
 
+import sqlalchemy.exc
 from flask import request, jsonify, abort, session
 from flask.wrappers import Response
 from flask_login import login_user, logout_user, current_user
@@ -154,8 +155,11 @@ def add_new_order_item() -> [str, int]:
   data = request.get_json()
   dish_id = data.get("dish_id")
   quantity = data.get("quantity")
-  dish = Dishes.query.get(dish_id)
-  price = dish.price
+  try:
+    dish = Dishes.query.get(dish_id)
+    price = dish.price
+  except AttributeError:
+    return "Given dish id not found!", 400
   cart = session.get("cart", [])
   cart.append({
     "item_id": len(cart), "dish_id": dish_id, "quantity": quantity,
@@ -224,5 +228,8 @@ def add_new_review() -> [str, int]:
   review = Reviews(
     dish_id=dish_id, account_id=account_id, stars=stars, comment=comment)
   db.session.add(review)
-  db.session.commit()
+  try:
+    db.session.commit()
+  except sqlalchemy.exc.IntegrityError:
+    return "Given dish id does not exist!", 400
   return "Successfully added new review!", 201

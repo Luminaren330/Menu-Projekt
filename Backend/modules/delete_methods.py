@@ -1,4 +1,5 @@
 """ API DELETE functions. """
+import sqlalchemy.exc
 from flask import request, session
 from flask_login import current_user
 
@@ -22,7 +23,10 @@ def delete_category() -> [str, int]:
   if not category:
     return "Category not found!", 400
   db.session.delete(category)
-  db.session.commit()
+  try:
+    db.session.commit()
+  except sqlalchemy.exc.IntegrityError:
+    return "There are dishes depending on this category!", 400
   return f"Category '{category.name}' deleted successfully!", 200
 
 

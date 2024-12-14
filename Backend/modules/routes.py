@@ -16,6 +16,10 @@ from .delete_methods import (
   delete_category, delete_ingredient, delete_table, delete_dish,
   delete_order_item, delete_order, delete_review
 )
+from .update_methods import (
+  update_category, update_ingredient, update_table, update_dish,
+  update_review, update_order, update_order_item
+)
 
 
 routes = Blueprint("routes", __name__)
@@ -55,7 +59,7 @@ def logout() -> tuple[Response, int]:
   return jsonify({"message": message}), status_code
 
 
-@routes.route("/categories", methods=["GET", "POST", "DELETE"])
+@routes.route("/categories", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_categories() -> tuple[Response, int]:
   """
   Endpoint used to manage categories.
@@ -66,6 +70,8 @@ def manage_categories() -> tuple[Response, int]:
   can retrieve this data.
   To delete category use DELETE method. You have to pass query param
   ?id=category_id. Only admin user can delete category.
+  To update category use PATCH method. You have to pass query param
+  ?id=category_id and pass following data to the body: name.
   """
   if request.method == "GET":
     response = get_categories()
@@ -76,9 +82,12 @@ def manage_categories() -> tuple[Response, int]:
   elif request.method == "DELETE":
     message, status_code = delete_category()
     return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_category()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/ingredients", methods=["GET", "POST", "DELETE"])
+@routes.route("/ingredients", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_ingredients() -> tuple[Response, int]:
   """
   Endpoint used to manage ingredients.
@@ -89,6 +98,8 @@ def manage_ingredients() -> tuple[Response, int]:
   can retrieve this data.
   To delete ingredient use DELETE method. You have to pass query param
   ?id=ingredient_id. Only admin user can delete ingredient.
+  To update ingredient use PATCH method. You have to pass query param
+  ?id=ingredient_id and pass following data to the body: name.
   """
   if request.method == "GET":
     response = get_ingredients()
@@ -99,9 +110,12 @@ def manage_ingredients() -> tuple[Response, int]:
   elif request.method == "DELETE":
     message, status_code = delete_ingredient()
     return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_ingredient()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/tables", methods=["GET", "POST", "DELETE"])
+@routes.route("/tables", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_tables() -> tuple[Response, int]:
   """
   Endpoint used to manage tables.
@@ -113,6 +127,8 @@ def manage_tables() -> tuple[Response, int]:
   (%Y-%m-%d %H:%M:%S).
   To delete table use DELETE method. You have to pass query param
   ?id=table_id. Only admin user can delete table.
+  To update table use PATCH method. You have to pass query param
+  ?id=table_id and pass following data to the body: capacity, description.
   """
   if request.method == "GET":
     response = get_tables()
@@ -123,9 +139,12 @@ def manage_tables() -> tuple[Response, int]:
   elif request.method == "DELETE":
     message, status_code = delete_table()
     return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_table()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/dishes", methods=["GET", "POST", "DELETE"])
+@routes.route("/dishes", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_dishes() -> tuple[Response, int]:
   """
   Endpoint used to manage dishes.
@@ -137,6 +156,9 @@ def manage_dishes() -> tuple[Response, int]:
   can retrieve this data.
   To delete dish use DELETE method. You have to pass query param
   ?id=dish_id.
+  To update dish use PATCH method. You have to pass query param
+  ?id=dish_id and pass following data to the body: category, description,
+  ingredients (list of ingredients), name, photo_url and price.
   """
   if request.method == "GET":
     response = get_dishes()
@@ -147,9 +169,12 @@ def manage_dishes() -> tuple[Response, int]:
   elif request.method == "DELETE":
     message, status_code = delete_dish()
     return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_dish()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/carts", methods=["GET", "POST", "DELETE"])
+@routes.route("/carts", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_carts() -> tuple[Response, int]:
   """
   Endpoint used to manage order cart.
@@ -169,9 +194,12 @@ def manage_carts() -> tuple[Response, int]:
   elif request.method == "DELETE":
     message, status_code = delete_order_item()
     return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_order_item()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/orders", methods=["GET", "POST", "DELETE"])
+@routes.route("/orders", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_orders() -> tuple[Response, int]:
   """
   Endpoint used to manage orders.
@@ -196,9 +224,12 @@ def manage_orders() -> tuple[Response, int]:
   elif request.method == "DELETE":
     message, status_code = delete_order()
     return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_order()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/reviews", methods=["GET", "POST", "DELETE"])
+@routes.route("/reviews", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_reviews() -> tuple[Response, int]:
   """
   Endpoint used to manage reviews.
@@ -216,4 +247,7 @@ def manage_reviews() -> tuple[Response, int]:
     return jsonify({"message": message}), status_code
   elif request.method == "DELETE":
     message, status_code = delete_review()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_review()
     return jsonify({"message": message}), status_code
