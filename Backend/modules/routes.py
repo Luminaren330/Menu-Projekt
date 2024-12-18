@@ -1,20 +1,24 @@
 """ Routes file. """
-from datetime import datetime, timedelta
-
-from flask import request, jsonify, Blueprint, abort
+from flask import request, jsonify, Blueprint
 from flask.wrappers import Response
-from flask_login import login_required, current_user
+from flask_login import login_required
 
-from . import db
-from .models import (
-  Categories, Ingredients, Tables, Dishes, Orders, OrderItems, Reviews
-)
 from .get_methods import (
   get_categories, get_ingredients, get_tables, get_dishes, get_orders,
-  get_reviews
+  get_reviews, get_cart
 )
 from .post_methods import (
-  register_user, log_in_user, log_out_user, add_new_category
+  register_user, log_in_user, log_out_user, add_new_category,
+  add_new_ingredient, add_new_table, add_new_dish, add_new_review,
+  add_new_order_item, add_new_order
+)
+from .delete_methods import (
+  delete_category, delete_ingredient, delete_table, delete_dish,
+  delete_order_item, delete_order, delete_review
+)
+from .update_methods import (
+  update_category, update_ingredient, update_table, update_dish,
+  update_review, update_order, update_order_item
 )
 
 
@@ -55,7 +59,7 @@ def logout() -> tuple[Response, int]:
   return jsonify({"message": message}), status_code
 
 
-@routes.route("/categories", methods=["GET", "POST"])
+@routes.route("/categories", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_categories() -> tuple[Response, int]:
   """
   Endpoint used to manage categories.
@@ -64,6 +68,10 @@ def manage_categories() -> tuple[Response, int]:
   ONLY admin user can add new categories.
   To retrieve all categories from table use GET method. Unauthorized users
   can retrieve this data.
+  To delete category use DELETE method. You have to pass query param
+  ?id=category_id. Only admin user can delete category.
+  To update category use PATCH method. You have to pass query param
+  ?id=category_id and pass following data to the body: name.
   """
   if request.method == "GET":
     response = get_categories()
@@ -71,9 +79,15 @@ def manage_categories() -> tuple[Response, int]:
   elif request.method == "POST":
     message, status_code = add_new_category()
     return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_category()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_category()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/ingredients", methods=["GET", "POST"])
+@routes.route("/ingredients", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_ingredients() -> tuple[Response, int]:
   """
   Endpoint used to manage ingredients.
@@ -82,24 +96,26 @@ def manage_ingredients() -> tuple[Response, int]:
   ONLY admin user can add new ingredients.
   To retrieve all ingredients from table use GET method. Unauthorized users
   can retrieve this data.
+  To delete ingredient use DELETE method. You have to pass query param
+  ?id=ingredient_id. Only admin user can delete ingredient.
+  To update ingredient use PATCH method. You have to pass query param
+  ?id=ingredient_id and pass following data to the body: name.
   """
   if request.method == "GET":
     response = get_ingredients()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    if current_user.role != "admin":
-      abort(403)
-    data = request.get_json()
-    name = data.get("name")
-    ingredient = Ingredients(name=name)
-    db.session.add(ingredient)
-    db.session.commit()
-    return jsonify({"message": "Successfully added new ingredient!"}), 201
+    message, status_code = add_new_ingredient()
+    return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_ingredient()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_ingredient()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/tables", methods=["GET", "POST"])
+@routes.route("/tables", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_tables() -> tuple[Response, int]:
   """
   Endpoint used to manage tables.
@@ -109,26 +125,26 @@ def manage_tables() -> tuple[Response, int]:
   To retrieve all tables use GET method. Authorized users
   can retrieve this data. You have to pass query param start_time
   (%Y-%m-%d %H:%M:%S).
+  To delete table use DELETE method. You have to pass query param
+  ?id=table_id. Only admin user can delete table.
+  To update table use PATCH method. You have to pass query param
+  ?id=table_id and pass following data to the body: capacity, description.
   """
   if request.method == "GET":
     response = get_tables()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    if current_user.role != "admin":
-      abort(403)
-    data = request.get_json()
-    capacity = data.get("capacity")
-    description = data.get("description")
-    table = Tables(
-      capacity=capacity, description=description)
-    db.session.add(table)
-    db.session.commit()
-    return jsonify({"message": "Successfully added new table!"}), 201
+    message, status_code = add_new_table()
+    return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_table()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_table()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/dishes", methods=["GET", "POST"])
+@routes.route("/dishes", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_dishes() -> tuple[Response, int]:
   """
   Endpoint used to manage dishes.
@@ -138,37 +154,52 @@ def manage_dishes() -> tuple[Response, int]:
   Admin and employee user can add new dishes.
   To retrieve all dishes use GET method. Unauthorized users
   can retrieve this data.
+  To delete dish use DELETE method. You have to pass query param
+  ?id=dish_id.
+  To update dish use PATCH method. You have to pass query param
+  ?id=dish_id and pass following data to the body: category, description,
+  ingredients (list of ingredients), name, photo_url and price.
   """
   if request.method == "GET":
     response = get_dishes()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    if current_user.role not in ["admin", "employee"]:
-      abort(403)
-    data = request.get_json()
-    category = data.get("category")
-    ingredients = data.get("ingredients")
-    name = data.get("name")
-    price = data.get("price")
-    photo_url = data.get("photo_url")
-    description = data.get("description")
-
-    category = Categories.query.filter_by(name=category).first()
-    ingredients = Ingredients.query.filter(
-      Ingredients.name.in_(ingredients)).all()
-    dish = Dishes(
-      category_id=category.category_id, name=name, price=price,
-      photo_url=photo_url, description=description)
-    dish.ingredients.extend(ingredients)
-
-    db.session.add(dish)
-    db.session.commit()
-    return jsonify({"message": "Successfully added new dish!"}), 201
+    message, status_code = add_new_dish()
+    return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_dish()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_dish()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/orders", methods=["GET", "POST"])
+@routes.route("/carts", methods=["GET", "POST", "DELETE", "PATCH"])
+def manage_carts() -> tuple[Response, int]:
+  """
+  Endpoint used to manage order cart.
+  To add order item to the cart user POST method. Pass the following data to
+  the endpoint: dish_id, quantity.
+  To retrieve all items in the cart use GET method.
+  Only authorized users can add new items to the cart and retrieve this data.
+  To delete order item use DELETE method. You have to pass query param
+  ?id=item_id.
+  """
+  if request.method == "GET":
+    response = get_cart()
+    return jsonify(response), 200
+  elif request.method == "POST":
+    message, status_code = add_new_order_item()
+    return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_order_item()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_order_item()
+    return jsonify({"message": message}), status_code
+
+
+@routes.route("/orders", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_orders() -> tuple[Response, int]:
   """
   Endpoint used to manage orders.
@@ -181,80 +212,42 @@ def manage_orders() -> tuple[Response, int]:
   To retrieve specific user's orders pass query param ?account_id=account_id.
   By not passing param all orders will be retrieved. Only authorized users can
   retrieve this data.
+  To delete order use DELETE method. You have to pass query param
+  ?id=order_id.
   """
   if request.method == "GET":
     response = get_orders()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    data = request.get_json()
-    # orders
-    table_id = data.get("table_id")
-    account_id = current_user.get_id()
-    take_away_time = data.get("take_away_time")
-    table_start_time = data.get("table_reservation_start_time")
-    if take_away_time:
-      take_away_time = datetime.strptime(
-        take_away_time, "%Y-%m-%d %H:%M:%S")
-      table_start_time = None
-      table_end_time = None
-    else:
-      take_away_time = None
-      table_start_time = datetime.strptime(
-        table_start_time, "%Y-%m-%d %H:%M:%S")
-      table_end_time = table_start_time + timedelta(hours=2)
-    order_status = "new"
-
-    # order items
-    dishes = data.get("dishes")  # [[dish_id, quantity, price], ...]
-    total_price = round(sum(dish[2] * dish[1] for dish in dishes), 2)
-    order = Orders(
-      table_id=table_id, account_id=account_id, total_price=total_price,
-      take_away_time=take_away_time,
-      table_start_time=table_start_time,
-      table_end_time=table_end_time, order_status=order_status
-    )
-    db.session.add(order)
-    db.session.flush()
-
-    for dish in dishes:
-      dish_id = dish[0]
-      quantity = dish[1]
-      price = dish[2]
-      order_item = OrderItems(
-        order_id=order.order_id, dish_id=dish_id, quantity=quantity,
-        price=price
-      )
-      db.session.add(order_item)
-
-    db.session.commit()
-
-    return jsonify({"message": "Successfully added new order!"}), 201
+    message, status_code = add_new_order()
+    return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_order()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_order()
+    return jsonify({"message": message}), status_code
 
 
-@routes.route("/reviews", methods=["GET", "POST"])
+@routes.route("/reviews", methods=["GET", "POST", "DELETE", "PATCH"])
 def manage_reviews() -> tuple[Response, int]:
   """
   Endpoint used to manage reviews.
   To add new review use POST method. Pass the following data to the endpoint
   dish_id, stars, comment. Only authorized users can add new review.
   To retrieve all reviews use GET method. You have to pass query param dish_id.
+  To delete review use DELETE method. You have to pass query param
+  ?id=review_id.
   """
   if request.method == "GET":
     response = get_reviews()
     return jsonify(response), 200
   elif request.method == "POST":
-    if not current_user.is_authenticated:
-      abort(401)
-    data = request.get_json()
-    dish_id = data.get("dish_id")
-    account_id = current_user.get_id()
-    stars = data.get("stars")
-    comment = data.get("comment")
-
-    review = Reviews(
-      dish_id=dish_id, account_id=account_id, stars=stars, comment=comment)
-    db.session.add(review)
-    db.session.commit()
-    return jsonify({"message": "Successfully added new review!"}), 201
+    message, status_code = add_new_review()
+    return jsonify({"message": message}), status_code
+  elif request.method == "DELETE":
+    message, status_code = delete_review()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_review()
+    return jsonify({"message": message}), status_code

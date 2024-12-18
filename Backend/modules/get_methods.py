@@ -1,7 +1,7 @@
 """ API GET functions. """
 from datetime import datetime, timedelta
 
-from flask import request
+from flask import request, session
 from sqlalchemy import or_, and_
 
 from . import db
@@ -12,19 +12,24 @@ from .models import (
 
 def get_categories() -> dict:
   """ Returns dictionary of categories. """
-  categories = Categories.query.with_entities(Categories.name).all()
+  categories = Categories.query.with_entities(
+    Categories.category_id, Categories.name).all()
   response = {"count": len(categories), "records": []}
-  categories_to_return = [{"name": category.name} for category in categories]
+  categories_to_return = [
+    {"category_id": category.category_id, "name": category.name}
+    for category in categories]
   response["records"] = categories_to_return
   return response
 
 
 def get_ingredients() -> dict:
   """ Returns dictionary of ingredients. """
-  ingredients = Ingredients.query.with_entities(Ingredients.name).all()
+  ingredients = Ingredients.query.with_entities(
+    Ingredients.name, Ingredients.ingredient_id).all()
   response = {"count": len(ingredients), "records": []}
   ingredients_to_return = [
-    {"name": ingredient.name} for ingredient in ingredients]
+    {"ingredient_id": ingredient.ingredient_id, "name": ingredient.name}
+    for ingredient in ingredients]
   response["records"] = ingredients_to_return
   return response
 
@@ -77,6 +82,7 @@ def get_dishes() -> dict:
   dishes = Dishes.query.all()
   response = {"count": len(dishes), "records": []}
   dishes_to_return = [{
+    "dish_id": dish.dish_id,
     "name": dish.name,
     "category": dish.category.name,
     "ingredients": [ingredient.name for ingredient in dish.ingredients],
@@ -88,34 +94,55 @@ def get_dishes() -> dict:
   return response
 
 
+def get_cart() -> dict:
+  """ Returns dictionary of order items. """
+  if cart := session.get("cart", []):
+    order_items_to_return = {"count": len(cart), "records": []}
+    for item in cart:
+      item_id = item.get("item_id")
+      dish = Dishes.query.get(item.get("dish_id"))
+      dish_name = dish.name
+      dish_price = dish.price
+      dish_photo = dish.photo_url
+      dish_desc = dish.description
+      quantity = item.get("quantity")
+      order_items_to_return["records"].append({
+        "item_id": item_id,
+        "dish_name": dish_name,
+        "price_per_item": dish_price,
+        "photo_url": dish_photo,
+        "description": dish_desc,
+        "quantity": quantity
+      })
+    return order_items_to_return
+  else:
+    response = {"count": 0, "records": []}
+    return response
+
+
 def get_orders_to_return(orders: tuple) -> list:
   """ Generates list of orders to return. """
   return [{
-      "table_id":
-      order.table_id,
-      "total_price":
-      order.total_price,
-      "order_status":
-      order.order_status,
-      "take_away_time": (order.take_away_time.strftime("%Y-%m-%d %H:%M:%S")
-                         if order.take_away_time else None),
-      "table_reservation_start_time":
-      (order.table_reservation_start_time.strftime("%Y-%m-%d %H:%M:%S")
-       if order.table_reservation_start_time else None),
-      "table_reservation_end_time":
-      (order.table_reservation_end_time.strftime("%Y-%m-%d %H:%M:%S")
-       if order.table_reservation_end_time else None),
-      "order_items": [{
-          "dish_name":
-          Dishes.query.filter_by(dish_id=order_item.dish_id).first().name,
-          "quantity":
-          order_item.quantity,
-          "price_per_dish":
-          order_item.price,
-      } for order_item in OrderItems.query.filter_by(
-          order_id=order.order_id).all()],
-      "order_date":
-      order.order_date.strftime("%Y-%m-%d %H:%M:%S"),
+    "order_id": order.order_id,
+    "table_id": order.table_id,
+    "total_price": order.total_price,
+    "order_status": order.order_status,
+    "take_away_time": (order.take_away_time.strftime("%Y-%m-%d %H:%M:%S")
+                       if order.take_away_time else None),
+    "table_reservation_start_time":
+    (order.table_reservation_start_time.strftime("%Y-%m-%d %H:%M:%S")
+     if order.table_reservation_start_time else None),
+    "table_reservation_end_time":
+    (order.table_reservation_end_time.strftime("%Y-%m-%d %H:%M:%S")
+     if order.table_reservation_end_time else None),
+    "order_items": [{
+      "dish_name":
+      Dishes.query.filter_by(dish_id=order_item.dish_id).first().name,
+      "quantity": order_item.quantity,
+      "price_per_dish": order_item.price,
+    } for order_item in OrderItems.query.filter_by(
+      order_id=order.order_id).all()],
+    "order_date": order.order_date.strftime("%Y-%m-%d %H:%M:%S"),
   } for order in orders]
 
 
@@ -156,6 +183,7 @@ def get_reviews() -> dict:
   reviews = Reviews.query.filter_by(dish_id=dish_id).all()
   response = {"count": len(reviews), "records": []}
   reviews_to_return = [{
+    "review_id": review.review_id,
     "dish": review.dish.name,
     "user": review.account.email,
     "stars": review.stars,
