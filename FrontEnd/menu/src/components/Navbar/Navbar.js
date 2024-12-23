@@ -30,7 +30,7 @@ const Navbar = () => {
       setIsAdmin(false);
       setIsLogedIn(false);
       alert("Pomyślnie wylogowano");
-      navigate("/dashboard");
+      navigate("/login");
     }
   };
 

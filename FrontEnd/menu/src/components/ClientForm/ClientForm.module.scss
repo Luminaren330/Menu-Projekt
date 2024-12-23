@@ -21,7 +21,7 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    color: rgb(163, 9, 186);
+    color: rgb(242, 79, 19);
     text-align: center;
     margin-top: 20px;
     margin-bottom: 10px;
@@ -35,7 +35,7 @@
   margin-top: 20px;
 }
 .menuHeader { 
-    color: rgb(163, 9, 186);
+    color: rgb(242, 79, 19);
     text-align: center;
     font-size: 40px;
     margin-top: 10px;
@@ -49,17 +49,15 @@
 .layout {
     display: grid;
     width: 1000px;
-    grid-template-columns: 270px 270px;
-    background: url("../../images/IMG-20241110-WA0002.jpg") center no-repeat;
+    grid-template-columns: 270px 270px 270px;
+    background: url("../../images/sala4.png") center no-repeat;
     background-size: cover;
     border: 2px solid black;
     justify-content: center;
     border-radius: 15px;
     height: 750px;
-    padding-top: 30px;
-    padding-bottom: 30px;
-    margin-bottom: 30px;
-    margin-top: 30px;
+    padding-bottom: 60px;
+    padding-right: 170px;
     gap: 0px;
 }
 
@@ -85,7 +83,7 @@
     margin-top: 10px;
     font-size: 18px;
     font-weight: bold;
-    color: rgb(163, 9, 186);
+    color: rgb(242, 79, 19);
 }
 
 .boxes {
@@ -143,7 +141,7 @@
 .yourOrderBtn {
     text-align: center;
     margin: 20px;
-    background-color: rgb(163, 9, 186);
+    background-color: rgb(242, 79, 19);
     color: white;
     text-decoration: none;
     width: 300px;

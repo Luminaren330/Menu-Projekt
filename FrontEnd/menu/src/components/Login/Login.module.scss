@@ -1,0 +1,67 @@
+@import '../../App.scss';
+
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.login {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    background-color: #f9fbfb;
+    box-shadow: 0 2px 3px 0 rgb(0 0 0 / 10%);
+    padding: 40px;
+    border-radius: 30px;
+    color: rgb(242, 79, 19);
+    margin-top: 50px;
+}
+.title {
+    font-size: 40px;
+}
+
+.labels {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
+.input {
+    border: none;
+    border-bottom: 1px solid #ced4da;
+    outline: none;
+    padding: 10px;
+    margin: 10px;
+}
+
+.button {
+    margin: 1.75rem 0;
+    background-color: rgb(242, 79, 19);
+    border: none;
+    color: white;
+    font-size: 1.25rem;
+    padding: 10px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+
+    &:hover {
+        cursor: pointer;
+        background-color: white;
+        color: rgb(242, 79, 19);
+        border: 1px solid rgb(242, 79, 19);
+    }
+}
+
+.link {
+    background-color: rgb(242, 79, 19);
+    border: none;
+    color: white;
+    padding: 10px;
+    border-radius: 30px;
+    cursor: pointer;
+    margin-left: 10px;
+}

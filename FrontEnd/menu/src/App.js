@@ -14,24 +14,66 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
+import AddWorker from "./components/AddWorker/AddWorker";
+import Workers from "./components/Workers/Workers";
+import Login from "./components/Login/Login";
+import { useGlobalContext } from "./components/context/context";
 
 function App() {
+  const { isLogedIn, isAdmin } = useGlobalContext();
   return (
     <>
       <Router>
         <Routes>
-          <Route exact path="/" element={<Navigate to="/dashboard" />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/menu" element={<Menu />} />
-          <Route path="/reviews/:id" element={<Reviews />} />
-          <Route path="/yourorder" element={<OrderItems />} />
-          <Route path="/addreview/:id" element={<AddReview />}></Route>
-          <Route path="/chooseplace" element={<ChoosePlace />}></Route>
-          <Route path="/clientform" element={<ClientForm />}></Route>
-          <Route path="/orders" element={<Orders />}></Route>
+          <Route path="/login" element={<Login />}></Route>
           <Route
-            path="/products/addnewproduct"
-            element={<AddNewProduct />}
+            exact
+            path="/"
+            element={isLogedIn ? <Dashboard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/dashboard"
+            element={isLogedIn ? <Dashboard /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/menu"
+            element={isLogedIn ? <Menu /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/reviews/:id"
+            element={isLogedIn ? <Reviews /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/yourorder"
+            element={isLogedIn ? <OrderItems /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/addreview/:id"
+            element={isLogedIn ? <AddReview /> : <Navigate to="/login" />}
+          ></Route>
+          <Route
+            path="/chooseplace"
+            element={isLogedIn ? <ChoosePlace /> : <Navigate to="/login" />}
+          ></Route>
+          <Route
+            path="/clientform"
+            element={isLogedIn ? <ClientForm /> : <Navigate to="/login" />}
+          ></Route>
+          <Route
+            path="/orders"
+            element={isAdmin ? <Orders /> : <Navigate to="/login" />}
+          ></Route>
+          <Route
+            path="/workers"
+            element={isAdmin ? <Workers /> : <Navigate to="/login" />}
+          ></Route>
+          <Route
+            path="/workers/addworker"
+            element={isAdmin ? <AddWorker /> : <Navigate to="/login" />}
+          ></Route>
+          <Route
+            path="/menu/addnewproduct"
+            element={isLogedIn ? <AddNewProduct /> : <Navigate to="/login" />}
           ></Route>
         </Routes>
       </Router>

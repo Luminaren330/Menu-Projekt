@@ -29,4 +29,14 @@ export const links = [
     link: "/yourorder",
     text: "Twoje zamówienie",
   },
+  {
+    id: 7,
+    link: "/workers",
+    text: "Pracownicy",
+  },
+  {
+    id: 8,
+    link: "/workers/addworker",
+    text: "Dodaj pracownika",
+  },
 ];

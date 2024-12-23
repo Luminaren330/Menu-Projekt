@@ -3,12 +3,13 @@ import React, { useState, useContext } from "react";
 const GlobalContext = React.createContext();
 
 const Context = ({ children }) => {
-  const [isLogedIn, setIsLogedIn] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [isLogedIn, setIsLogedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState({});
 
   return (
     <GlobalContext.Provider
-      value={{ isLogedIn, isAdmin, setIsAdmin, setIsLogedIn }}
+      value={{ isLogedIn, isAdmin, setIsAdmin, setIsLogedIn, user, setUser }}
     >
       {children}
     </GlobalContext.Provider>

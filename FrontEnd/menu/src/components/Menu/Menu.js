@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import styles from "./Menu.module.scss";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/context";
@@ -7,20 +7,40 @@ import menu from "./menu-tmpdata";
 import { FaArrowRight, FaPlus, FaMinus } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Popup from "../Popup/Popup";
+import Axios from "axios";
 
 const Menu = () => {
   const navigate = useNavigate();
   const { isLogedIn, isAdmin } = useGlobalContext();
 
-  const [products] = useState(menu);
+  const [products, setProducts] = useState([]);
+  const [category, setCategory] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [quantities, setQuantities] = useState({});
 
-  const categories = ["All", ...new Set(menu.map((item) => item.category))];
+  const categories = ["All", ...new Set(category.map((item) => item.name))];
+
+  const getDishes = useCallback(() => {
+    Axios.get("http://127.0.01:5000/dishes")
+      .then((res) => {
+        setProducts(res.data || []);
+      })
+      .catch(() => navigate("/error"));
+  }, [navigate]);
+
+  const getCategories = useCallback(() => {
+    Axios.get("http://127.0.01:5000/categories")
+      .then((res) => {
+        console.log(res.data.records);
+        setCategory(res.data.records || []);
+      })
+      .catch(() => navigate("/error"));
+  }, [navigate]);
 
   useEffect(() => {
-    setSelectedCategory("All");
-  }, []);
+    getDishes();
+    getCategories();
+  }, [getDishes, getCategories]);
 
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
@@ -40,10 +60,13 @@ const Menu = () => {
   };
 
   const filteredProducts = useMemo(() => {
-    if (selectedCategory === "All") {
-      return products;
+    if (Array.isArray(products)) {
+      if (selectedCategory === "All") {
+        return products;
+      }
+      return products.filter((item) => item.category === selectedCategory);
     }
-    return products.filter((item) => item.category === selectedCategory);
+    return [];
   }, [products, selectedCategory]);
 
   const filterByCategory = (category) => {
@@ -144,9 +167,15 @@ const Menu = () => {
             ))}
           </div>
           <div className={styles.btnBottom}>
-            <Link className={styles.yourOrderBtn} to={"/yourorder"}>
-              Przejdź do zamówienia
-            </Link>
+            {isAdmin ? (
+              <Link className={styles.yourOrderBtn} to={"/menu/addnewproduct"}>
+                Dodaj nowy produkt
+              </Link>
+            ) : (
+              <Link className={styles.yourOrderBtn} to={"/yourorder"}>
+                Przejdź do zamówienia
+              </Link>
+            )}
           </div>
         </div>
       </div>

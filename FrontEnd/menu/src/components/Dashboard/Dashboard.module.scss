@@ -9,7 +9,7 @@
 body {
   min-height: 100vh;
   min-width: 100vw;
-  background: url('../../images/tło.png') no-repeat center center / cover;
+  background: url('../../images/Designer.png') no-repeat center center / cover;
 }
 
 .container {
@@ -24,19 +24,19 @@ body {
 .content {
   width: 700px;
   height: 700px;
-  border: 1px solid black;
+  border: 1px solid rgb(33, 33, 33);
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: black;
+  background-color: rgb(33, 33, 33);
 
 }
 
 .welcome {
   font-size: 38px;
-  color: rgb(163, 9, 186);
+  color: rgb(242, 79, 19);
   font-weight: 500;
 }
 
@@ -56,7 +56,7 @@ body {
 .button {
   display: inline-block;
   padding: 18px 54px;
-  background-color: rgb(163, 9, 186);
+  background-color: rgb(242, 79, 19);
   color: white;
   font-size: 16px;
   font-weight: 600;
@@ -65,7 +65,7 @@ body {
   transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: rgb(80, 4, 92);
+    background-color: rgb(209, 67, 15);
   }
 }
 @media screen and (max-width: 700px) {
