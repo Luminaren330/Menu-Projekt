@@ -5,7 +5,7 @@ import TextAreaInput from "./TextAreaInput";
 import { useNavigate, useParams } from "react-router-dom";
 import ReactStars from "react-stars";
 import Popup from "../Popup/Popup";
-import menu from "../Menu/menu-tmpdata";
+import Axios from "axios";
 
 const AddReview = () => {
   const { id } = useParams();
@@ -17,8 +17,13 @@ const AddReview = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    let oneDish = menu.filter((element) => element.id === Number(id));
-    setDish(oneDish[0]);
+    Axios.get("http://127.0.01:5000/dishes").then((res) => {
+      let oneDish = res.data.records.filter(
+        (element) => element.dish_id === Number(id)
+      );
+
+      setDish(oneDish[0]);
+    });
   }, []);
 
   const ratingChange = (rating) => {
@@ -34,14 +39,19 @@ const AddReview = () => {
       setWrong(true);
       return;
     }
-    setWrong(false);
-    togglePopup(true);
-    //TODO add review
 
-    navigate("/menu");
-    setTimeout(() => {
-      togglePopup(false);
-    }, 5000);
+    Axios.post("http://127.0.01:5000/reviews", {
+      dish_id: id,
+      stars: stars,
+      comment: comment,
+    }).then(() => {
+      setWrong(false);
+      togglePopup(true);
+      navigate("/menu");
+      setTimeout(() => {
+        togglePopup(false);
+      }, 5000);
+    });
   };
 
   return (

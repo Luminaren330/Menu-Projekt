@@ -6,16 +6,16 @@ import styles from "./Reviews.module.scss";
 import { FaRegUserCircle } from "react-icons/fa";
 import ReactStars from "react-stars";
 import { Link } from "react-router-dom";
+import Axios from "axios";
 
 const Reviews = () => {
   const { id } = useParams();
   const [reviewData, setReviewData] = useState([]);
 
   useEffect(() => {
-    const filteredReviews = reviews.filter(
-      (review) => review.dish_id === Number(id)
-    );
-    setReviewData(filteredReviews);
+    Axios.get(`http://127.0.01:5000/reviews?id=${id}`).then((res) => {
+      setReviewData(res.data.records || []);
+    });
   }, [id]);
 
   return (

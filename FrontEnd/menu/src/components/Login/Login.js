@@ -12,21 +12,38 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [phone, setPhone] = useState(0);
-  const [credentials, setCredentials] = useState([]);
   const [isRegister, setIsRegister] = useState(false);
   const navigate = useNavigate();
 
+  // Sprawdzenie, czy użytkownik jest zalogowany po odświeżeniu strony
+  useEffect(() => {
+    const savedUser = JSON.parse(localStorage.getItem("user"));
+    if (savedUser) {
+      setIsLogedIn(true);
+      setUser(savedUser);
+      if (savedUser.role === "admin") {
+        setIsAdmin(true);
+      }
+      navigate("/dashboard");
+    }
+  }, [setIsLogedIn, setIsAdmin, setUser, navigate]);
+
   const handleLogin = () => {
-    Axios.post("http://127.0.01:5000/login", {
+    Axios.post("http://127.0.0.1:5000/login", {
       email: login,
       password: password,
     }).then((res) => {
       if (res.data.message === "Logged in successfully!") {
-        setIsLogedIn(true);
-        setUser({
+        const userData = {
           email: login,
-          password: password,
-        });
+          role: res.data.role,
+        };
+        setIsLogedIn(true);
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData)); // Zapisz użytkownika w localStorage
+        if (res.data.role === "admin") {
+          setIsAdmin(true);
+        }
         alert("Pomyslnie zalogowano");
         navigate("/dashboard");
       } else {
@@ -36,7 +53,7 @@ const Login = () => {
   };
 
   const handleRegister = () => {
-    Axios.post("http://127.0.01:5000/register", {
+    Axios.post("http://127.0.0.1:5000/register", {
       email: login,
       password: password,
       role: "client",
@@ -44,17 +61,17 @@ const Login = () => {
       lastname: lastName,
       telephone: phone,
     }).then((res) => {
-      console.log(res.data.message);
       if (res.data.message === "User registered successfully!") {
-        setIsLogedIn(true);
-        setUser({
+        const userData = {
           email: login,
-          password: password,
           role: "client",
           firstname: firstName,
           lastname: lastName,
           telephone: phone,
-        });
+        };
+        setIsLogedIn(true);
+        setUser(userData);
+        localStorage.setItem("user", JSON.stringify(userData)); // Zapisz użytkownika w localStorage
         alert("Pomyslnie założono konto");
         navigate("/dashboard");
       } else {
@@ -90,7 +107,7 @@ const Login = () => {
           ></input>
         </div>
 
-        {isRegister ? (
+        {isRegister && (
           <div>
             <div className={styles.labels}>
               <label htmlFor="firstName">Imię: </label>
@@ -122,24 +139,14 @@ const Login = () => {
               ></input>
             </div>
           </div>
-        ) : null}
+        )}
 
         {isRegister ? (
-          <button
-            className={styles.button}
-            onClick={() => {
-              handleRegister();
-            }}
-          >
+          <button className={styles.button} onClick={handleRegister}>
             Zarejestruj się
           </button>
         ) : (
-          <button
-            className={styles.button}
-            onClick={() => {
-              handleLogin();
-            }}
-          >
+          <button className={styles.button} onClick={handleLogin}>
             Zaloguj się
           </button>
         )}

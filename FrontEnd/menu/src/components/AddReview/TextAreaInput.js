@@ -12,7 +12,7 @@ const TextAreaInput = ({ id, string, setParameter }) => {
         type="text"
         className={styles.formTextInput}
         minLength={0}
-        maxLength={10}
+        maxLength={200}
         onChange={(event) => setParameter(event.target.value)}
       ></textarea>
     </>

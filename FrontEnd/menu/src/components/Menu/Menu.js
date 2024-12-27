@@ -23,7 +23,7 @@ const Menu = () => {
   const getDishes = useCallback(() => {
     Axios.get("http://127.0.01:5000/dishes")
       .then((res) => {
-        setProducts(res.data || []);
+        setProducts(res.data.records || []);
       })
       .catch(() => navigate("/error"));
   }, [navigate]);
@@ -31,7 +31,6 @@ const Menu = () => {
   const getCategories = useCallback(() => {
     Axios.get("http://127.0.01:5000/categories")
       .then((res) => {
-        console.log(res.data.records);
         setCategory(res.data.records || []);
       })
       .catch(() => navigate("/error"));
@@ -48,7 +47,7 @@ const Menu = () => {
     setIsPopupVisible(value);
   };
 
-  const addToOrderDetail = (id) => {
+  const addToOrderDetail = (dish_id) => {
     togglePopup(true);
     console.log(quantities);
 
@@ -56,7 +55,7 @@ const Menu = () => {
       togglePopup(false);
     }, 5000);
 
-    setQuantities((prevQuantities) => ({ ...prevQuantities, [id]: 1 }));
+    setQuantities((prevQuantities) => ({ ...prevQuantities, [dish_id]: 1 }));
   };
 
   const filteredProducts = useMemo(() => {
@@ -73,17 +72,17 @@ const Menu = () => {
     setSelectedCategory(category);
   };
 
-  const increaseQuantity = (id) => {
+  const increaseQuantity = (dish_id) => {
     setQuantities((prevQuantities) => ({
       ...prevQuantities,
-      [id]: (prevQuantities[id] || 1) + 1,
+      [dish_id]: (prevQuantities[dish_id] || 1) + 1,
     }));
   };
 
-  const decreaseQuantity = (id) => {
+  const decreaseQuantity = (dish_id) => {
     setQuantities((prevQuantities) => ({
       ...prevQuantities,
-      [id]: Math.max((prevQuantities[id] || 1) - 1, 1),
+      [dish_id]: Math.max((prevQuantities[dish_id] || 1) - 1, 1),
     }));
   };
 
@@ -115,7 +114,7 @@ const Menu = () => {
 
           <div className={styles.menuItems}>
             {filteredProducts.map((product) => (
-              <div key={product.id} className={styles.menuItem}>
+              <div key={product.dish_id} className={styles.menuItem}>
                 <div className={styles.menuImage}>
                   <img src={product.photo_url} alt={product.name} />
                 </div>
@@ -126,26 +125,26 @@ const Menu = () => {
                       <div className={styles.quantityControl}>
                         <button
                           className={styles.quantityButton}
-                          onClick={() => decreaseQuantity(product.id)}
+                          onClick={() => decreaseQuantity(product.dish_id)}
                         >
                           <FaMinus />
                         </button>
                         <input
                           type="number"
-                          value={quantities[product.id] || 1}
+                          value={quantities[product.dish_id] || 1}
                           readOnly
                           className={styles.quantityInput}
                         />
                         <button
                           className={styles.quantityButton}
-                          onClick={() => increaseQuantity(product.id)}
+                          onClick={() => increaseQuantity(product.dish_id)}
                         >
                           <FaPlus />
                         </button>
                       </div>
                       <button
                         className={styles.orderButton}
-                        onClick={() => addToOrderDetail(product.id)}
+                        onClick={() => addToOrderDetail(product.dish_id)}
                       >
                         Dodaj do Zamówienia <FaArrowRight />
                       </button>
@@ -157,7 +156,7 @@ const Menu = () => {
                     <p className={styles.menuPrice}>Cena: {product.price} zł</p>
                     <Link
                       className={styles.reviews}
-                      to={`/reviews/${product.id}`}
+                      to={`/reviews/${product.dish_id}`}
                     >
                       Zobacz recenzje <FaArrowRight />
                     </Link>
@@ -167,7 +166,7 @@ const Menu = () => {
             ))}
           </div>
           <div className={styles.btnBottom}>
-            {isAdmin ? (
+            {!isAdmin ? (
               <Link className={styles.yourOrderBtn} to={"/menu/addnewproduct"}>
                 Dodaj nowy produkt
               </Link>

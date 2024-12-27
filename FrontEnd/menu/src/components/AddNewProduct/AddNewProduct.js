@@ -6,11 +6,14 @@ import FloatInput from "../AddReview/FloatInput";
 import { useNavigate } from "react-router-dom";
 import TextAreaInput from "../AddReview/TextAreaInput";
 import Dropdown from "../AddReview/Dropdown";
+import Axios from "axios";
 
 const AddNewProduct = () => {
   const [name, setName] = useState("");
-  const [photo, setPhoto] = useState("");
-  const [ingredients, setIngredients] = useState("A");
+  const [photo, setPhoto] = useState(null);
+  const [preview, setPreview] = useState("");
+  const [ingredients, setIngredients] = useState("");
+  const [description, setDescription] = useState("");
   const [unitPrice, setUnitPrice] = useState(0);
   const [category, setCategory] = useState("Filtr");
   const [wrong, setWrong] = useState(false);
@@ -23,15 +26,38 @@ const AddNewProduct = () => {
     setCategory(event.target.value);
   };
 
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      console.log(file);
+      setPhoto(file);
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
   const addNewProduct = () => {
     setBadPrice(false);
     setWrong(false);
-    if (name.length < 5 || ingredients.length < 5) {
+    if (name.length < 5 || ingredients.length < 5 || description.length < 5) {
       setWrong(true);
     } else if (unitPrice <= 0) {
       setBadPrice(true);
     } else {
-      //TODO dodać jak baza
+      Axios.post("http://127.0.01:5000/dishes", {
+        category: category,
+        ingredients: ingredients,
+        name: name,
+        price: unitPrice,
+        photo_url: photo,
+        description: description,
+      })
+        .then(() => {
+          alert("Pomyślnie dodano nowe danie");
+          navigate("/menu");
+        })
+        .catch((e) => {
+          alert("Brak autoryzacji");
+        });
     }
   };
 
@@ -55,10 +81,28 @@ const AddNewProduct = () => {
                 string="Składniki: "
                 setParameter={setIngredients}
               />
-              <StringInput string="Link do zdjęcia: " setParameter={setPhoto} />
+              <TextAreaInput string="Opis: " setParameter={setDescription} />
+              <label className={styles.formLabel}>Zdjęcie: </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className={styles.fileInput}
+              />
+              {preview && (
+                <div className={styles.preview}>
+                  <img
+                    src={preview}
+                    alt="Podgląd"
+                    className={styles.previewImg}
+                  />
+                </div>
+              )}
               {wrong && (
                 <div className={styles.wrong}>
-                  <h4>Pola nazwa lub składniki są za krótkie. Min 5 znaków</h4>
+                  <h4>
+                    Pola nazwa, opis lub składniki są za krótkie. Min 5 znaków
+                  </h4>
                 </div>
               )}
               {badPrice && (
