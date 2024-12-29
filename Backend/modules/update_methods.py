@@ -2,7 +2,6 @@
 from datetime import datetime, timedelta
 
 from flask import request, session
-from flask_login import current_user
 
 from .models import (
   Categories, Ingredients, Tables, Dishes, Orders, Reviews, OrderItems
@@ -12,10 +11,6 @@ from . import db
 
 def update_category() -> [str, int]:
   """ Updates category in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update a category!", 401
-  if current_user.role != "admin":
-    return "Only users with role 'admin' can update a category!", 403
   category_id = request.args.get("id")
   data = request.get_json()
   category = Categories.query.get(category_id)
@@ -29,10 +24,6 @@ def update_category() -> [str, int]:
 
 def update_ingredient() -> [str, int]:
   """ Updates ingredient in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update an ingredient!", 401
-  if current_user.role != "admin":
-    return "Only users with role 'admin' can update an ingredient!", 403
   ingredient_id = request.args.get("id")
   data = request.get_json()
   ingredient = Ingredients.query.get(ingredient_id)
@@ -46,10 +37,6 @@ def update_ingredient() -> [str, int]:
 
 def update_table() -> [str, int]:
   """ Updates table in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update a table!", 401
-  if current_user.role != "admin":
-    return "Only users with role 'admin' can update a table!", 403
   table_id = request.args.get("id")
   data = request.get_json()
   table = Tables.query.get(table_id)
@@ -65,10 +52,6 @@ def update_table() -> [str, int]:
 
 def update_dish() -> [str, int]:
   """ Updates dish in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update a table!", 401
-  if current_user.role not in ["admin", "employee"]:
-    return "Only users with role 'admin' or 'employee' can update a dish!", 403
   dish_id = request.args.get("id")
   data = request.get_json()
   dish = Dishes.query.get(dish_id)
@@ -95,8 +78,6 @@ def update_dish() -> [str, int]:
 
 def update_order() -> [str, int]:
   """ Updates order in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update an order!", 401
   order_id = request.args.get("id")
   data = request.get_json()
   order = Orders.query.get(order_id)
@@ -121,8 +102,6 @@ def update_order() -> [str, int]:
 
 def update_order_item() -> [str, int]:
   """ Updates order item in the session. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update an order item!", 401
   item_id = request.args.get("id")
   data = request.get_json()
   items = session.get("cart", [])
@@ -149,8 +128,6 @@ def update_order_item() -> [str, int]:
 
 def update_review() -> [str, int]:
   """ Updates table in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update a review!", 401
   review_id = request.args.get("id")
   data = request.get_json()
   review = Reviews.query.get(review_id)

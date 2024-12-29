@@ -1,7 +1,6 @@
 """ API DELETE functions. """
 import sqlalchemy.exc
 from flask import request, session
-from flask_login import current_user
 
 from .models import (
   Categories, Ingredients, Tables, Dishes, dishes_ingredients, Orders, Reviews,
@@ -12,10 +11,6 @@ from . import db
 
 def delete_category() -> [str, int]:
   """ Deletes category from the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can delete a category!", 401
-  if current_user.role != "admin":
-    return "Only users with role 'admin' can delete a category!", 403
   category_id = request.args.get("id")
   if not category_id:
     return "Missing 'category_id' parameter", 404
@@ -32,10 +27,6 @@ def delete_category() -> [str, int]:
 
 def delete_ingredient() -> [str, int]:
   """ Deletes ingredient from the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can delete an ingredient!", 401
-  if current_user.role != "admin":
-    return "Only users with role 'admin' can delete an ingredient!", 403
   ingredient_id = request.args.get("id")
   if not ingredient_id:
     return "Missing 'ingredient_id' parameter", 404
@@ -49,10 +40,6 @@ def delete_ingredient() -> [str, int]:
 
 def delete_table() -> [str, int]:
   """ Deletes table from the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can delete a table!", 401
-  if current_user.role != "admin":
-    return "Only users with role 'admin' can delete a table!", 403
   table_id = request.args.get("id")
   if not table_id:
     return "Missing 'table_id' parameter", 404
@@ -66,10 +53,6 @@ def delete_table() -> [str, int]:
 
 def delete_dish() -> [str, int]:
   """ Deletes dish from the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can delete a dish!", 401
-  if current_user.role not in ["admin", "employee"]:
-    return "Only users with role 'admin' or 'employee' can delete a dish!", 403
   dish_id = request.args.get("id")
   if not dish_id:
     return "Missing 'dish_id' parameter", 404
@@ -90,8 +73,6 @@ def delete_dish() -> [str, int]:
 
 def delete_order_item() -> [str, int]:
   """ Deletes order item from the session. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can delete an order item!", 401
   item_id = request.args.get("id")
   if not item_id:
     return "Missing 'item_id' parameter", 404
@@ -108,8 +89,6 @@ def delete_order_item() -> [str, int]:
 
 def delete_order() -> [str, int]:
   """ Deletes order from the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can delete an order!", 401
   order_id = request.args.get("id")
   if not order_id:
     return "Missing 'order_id' parameter", 404
@@ -126,8 +105,6 @@ def delete_order() -> [str, int]:
 
 def delete_review() -> [str, int]:
   """ Deletes review from the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can delete a review!", 401
   review_id = request.args.get("id")
   if not review_id:
     return "Missing 'review_id' parameter", 404

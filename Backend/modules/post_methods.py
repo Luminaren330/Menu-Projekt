@@ -1,10 +1,12 @@
 """ API POST functions. """
 from datetime import datetime, timedelta
+from werkzeug.utils import secure_filename
+import os
 
 import sqlalchemy.exc
-from flask import request, jsonify, abort, session
+from flask import request, jsonify, session
 from flask.wrappers import Response
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user
 
 from . import db
 from .models import (
@@ -51,9 +53,11 @@ def register_employee_account(data: dict, user: Accounts) -> None:
   telephone = data.get("telephone")
   position = data.get("position")
   is_available = data.get("is_available")
+  description = data.get("description")
   employee = Employee(account_id=user.account_id, firstname=firstname,
                       lastname=lastname, telephone=telephone,
-                      position=position, is_available=is_available)
+                      position=position, is_available=is_available,
+                      description=description)
   db.session.add(employee)
   db.session.commit()
 
@@ -66,7 +70,16 @@ def log_in_user() -> [str, int]:
   user = Accounts.query.filter_by(email=email).first()
   if user and user.password == password:
     login_user(user)
-    return "Logged in successfully!", 200
+    user_to_return = {
+      "user_id": user.account_id,
+      "email": user.email,
+      "role": user.role
+    }
+    response = {
+      "message": "Logged in successfully!",
+      "user_data": user_to_return
+    }
+    return response, 200
   else:
     return "Login failed! Check email and password.", 401
 
@@ -79,10 +92,6 @@ def log_out_user() -> [str, int]:
 
 def add_new_category() -> [str, int]:
   """ Inserts new category to the database. """
-  if not current_user.is_authenticated:
-    abort(401)
-  if current_user.role != "admin":
-    abort(403)
   data = request.get_json()
   name = data.get("name")
   category = Categories(name=name)
@@ -93,10 +102,6 @@ def add_new_category() -> [str, int]:
 
 def add_new_ingredient() -> [str, int]:
   """ Inserts new ingredient to the database."""
-  if not current_user.is_authenticated:
-    abort(401)
-  if current_user.role != "admin":
-    abort(403)
   data = request.get_json()
   name = data.get("name")
   ingredient = Ingredients(name=name)
@@ -107,10 +112,6 @@ def add_new_ingredient() -> [str, int]:
 
 def add_new_table() -> [str, int]:
   """ Inserts new table to the database. """
-  if not current_user.is_authenticated:
-    abort(401)
-  if current_user.role != "admin":
-    abort(403)
   data = request.get_json()
   capacity = data.get("capacity")
   description = data.get("description")
@@ -123,18 +124,18 @@ def add_new_table() -> [str, int]:
 
 def add_new_dish() -> [str, int]:
   """ Inserts new dish to the database. """
-  if not current_user.is_authenticated:
-    abort(401)
-  if current_user.role not in ["admin", "employee"]:
-    abort(403)
-  data = request.get_json()
-  category = data.get("category")
-  ingredients = data.get("ingredients")
-  name = data.get("name")
-  price = data.get("price")
-  photo_url = data.get("photo_url")
-  description = data.get("description")
-
+  category = request.form.get("category")
+  ingredients = request.form.get("ingredients").split(",")
+  name = request.form.get("name")
+  price = float(request.form.get("price"))
+  description = request.form.get("description")
+  if photo := request.files.get("photo"):
+    filename = secure_filename(photo.filename)
+    save_path = os.path.join(os.getenv("UPLOAD_FOLDER"), filename)
+    photo.save(save_path)
+    photo_url = save_path
+  else:
+    photo_url = None
   category = Categories.query.filter_by(name=category).first()
   ingredients = Ingredients.query.filter(
     Ingredients.name.in_(ingredients)).all()
@@ -150,8 +151,6 @@ def add_new_dish() -> [str, int]:
 
 def add_new_order_item() -> [str, int]:
   """ Inserts new order item to the database. """
-  if not current_user.is_authenticated:
-    abort(401)
   data = request.get_json()
   dish_id = data.get("dish_id")
   quantity = data.get("quantity")
@@ -171,11 +170,9 @@ def add_new_order_item() -> [str, int]:
 
 def add_new_order() -> [str, int]:
   """ Inserts new order to the database. """
-  if not current_user.is_authenticated:
-    abort(401)
   data = request.get_json()
   table_id = data.get("table_id")
-  account_id = current_user.get_id()
+  account_id = data.get("user_id")
   take_away_time = data.get("take_away_time")
   table_start_time = data.get("table_reservation_start_time")
   if take_away_time:
@@ -217,14 +214,12 @@ def add_new_order() -> [str, int]:
 
 def add_new_review() -> [str, int]:
   """ Inserts new review to the database. """
-  if not current_user.is_authenticated:
-    abort(401)
   data = request.get_json()
-  dish_id = data.get("dish_id")
-  account_id = current_user.get_id()
+  dish_id = int(data.get("dish_id"))
+  account_id = data.get("user_id")
   stars = data.get("stars")
   comment = data.get("comment")
-
+  print(data)
   review = Reviews(
     dish_id=dish_id, account_id=account_id, stars=stars, comment=comment)
   db.session.add(review)

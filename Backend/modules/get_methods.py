@@ -6,8 +6,57 @@ from sqlalchemy import or_, and_
 
 from . import db
 from .models import (
-  Categories, Ingredients, Tables, Orders, Dishes, OrderItems, Reviews
+  Categories, Ingredients, Tables, Orders, Dishes, OrderItems, Reviews,
+  Accounts, Employee, Clients
 )
+
+
+def get_users() -> dict:
+  """ Return dictionary of users. """
+  all_accounts = Accounts.query.all()
+  clients_accounts = db.session.query(Accounts, Clients).join(
+    Clients, Accounts.account_id == Clients.account_id).all()
+  employee_accounts = db.session.query(Accounts, Employee).join(
+    Employee, Accounts.account_id == Employee.account_id)
+
+  admins_to_return = [{
+      "account_id": record.account_id,
+      "email": record.email,
+      "role": record.role
+    }
+    for record in all_accounts if record.role == "admin"
+  ]
+  response = {
+    "admin_count": len(admins_to_return),
+    "admin_records": admins_to_return}
+  clients_to_return = [{
+    "account_id": record.account_id,
+    "email": record.email,
+    "role": record.role,
+    "firstname": client.firstname,
+    "lastname": client.lastname,
+    "telephone": client.telephone
+  }
+    for record, client in clients_accounts if record.role == "client"
+  ]
+  response["client_count"] = len(clients_to_return)
+  response["client_records"] = clients_to_return
+  employee_to_return = [{
+    "account_id": record.account_id,
+    "email": record.email,
+    "role": record.role,
+    "firstname": employee.firstname,
+    "lastname": employee.lastname,
+    "telephone": employee.telephone,
+    "position": employee.position,
+    "description": employee.description,
+    "is_available": employee.is_available
+  }
+    for record, employee in employee_accounts if record.role == "employee"
+  ]
+  response["employee_count"] = len(employee_to_return)
+  response["employee_records"] = employee_to_return
+  return response
 
 
 def get_categories() -> dict:

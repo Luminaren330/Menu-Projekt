@@ -36,7 +36,8 @@ const Login = () => {
       if (res.data.message === "Logged in successfully!") {
         const userData = {
           email: login,
-          role: res.data.role,
+          role: res.data.user_data.role,
+          user_id: res.data.user_data.user_id
         };
         setIsLogedIn(true);
         setUser(userData);

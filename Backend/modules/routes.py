@@ -5,7 +5,7 @@ from flask_login import login_required
 
 from .get_methods import (
   get_categories, get_ingredients, get_tables, get_dishes, get_orders,
-  get_reviews, get_cart
+  get_reviews, get_cart, get_users
 )
 from .post_methods import (
   register_user, log_in_user, log_out_user, add_new_category,
@@ -47,8 +47,8 @@ def login() -> tuple[Response, int]:
   User login endpoint.
   To login user pass to the endpoint body following data: email, password.
   """
-  message, status_code = log_in_user()
-  return jsonify({"message": message}), status_code
+  response, status_code = log_in_user()
+  return jsonify(response), status_code
 
 
 @routes.route("/logout", methods=["POST"])
@@ -57,6 +57,20 @@ def logout() -> tuple[Response, int]:
   """ User logout endpoint. """
   message, status_code = log_out_user()
   return jsonify({"message": message}), status_code
+
+
+@routes.route("/users", methods=["GET", "DELETE", "PATCH"])
+def manage_users() -> tuple[Response, int]:
+  """ Endpoint used to manage users. """
+  if request.method == "GET":
+    response = get_users()
+    return jsonify(response), 200
+  elif request.method == "DELETE":
+    message, status_code = delete_category()
+    return jsonify({"message": message}), status_code
+  elif request.method == "PATCH":
+    message, status_code = update_category()
+    return jsonify({"message": message}), status_code
 
 
 @routes.route("/categories", methods=["GET", "POST", "DELETE", "PATCH"])

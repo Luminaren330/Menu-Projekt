@@ -43,22 +43,27 @@ const AddNewProduct = () => {
     } else if (unitPrice <= 0) {
       setBadPrice(true);
     } else {
-      Axios.post("http://127.0.01:5000/dishes", {
-        category: category,
-        ingredients: ingredients,
-        name: name,
-        price: unitPrice,
-        photo_url: photo,
-        description: description,
+      const formData = new FormData();
+      formData.append("category", category);
+      formData.append("ingredients", [ingredients]);
+      formData.append("name", name);
+      formData.append("price", unitPrice);
+      formData.append("description", description);
+      formData.append("photo", photo);
+      console.log("Photo", photo);
+      Axios.post("http://127.0.0.1:5000/dishes", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       })
-        .then(() => {
-          alert("Pomyślnie dodano nowe danie");
-          navigate("/menu");
-        })
-        .catch((e) => {
-          alert("Brak autoryzacji");
-        });
-    }
+      .then(() => {
+        alert("Pomyślnie dodano nowe danie");
+        navigate("/menu");
+      })
+      .catch((e) => {
+        alert("Brak autoryzacji");
+      });
+      }
   };
 
   return (

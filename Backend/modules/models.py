@@ -68,12 +68,13 @@ class Employee(db.Model, UserMixin):
   telephone = db.Column(db.String(15), nullable=False)
   position = db.Column(db.String(40), nullable=False)
   is_available = db.Column(db.Boolean, default=True, nullable=False)
+  description = db.Column(db.String(100), nullable=True)
 
   account = db.relationship("Accounts", backref="employee", lazy=True)
 
   def __init__(
       self, account_id: int, firstname: str, lastname: str, telephone: str,
-      position: str, is_available: bool
+      position: str, is_available: bool, description: str
   ) -> None:
     """ Class constructor """
     self.account_id = account_id
@@ -82,6 +83,7 @@ class Employee(db.Model, UserMixin):
     self.telephone = telephone
     self.position = position
     self.is_available = is_available
+    self.description = description
 
   def __repr__(self) -> str:
     """ Returns user first name and last name. """
