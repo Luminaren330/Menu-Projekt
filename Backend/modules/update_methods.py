@@ -4,9 +4,58 @@ from datetime import datetime, timedelta
 from flask import request, session
 
 from .models import (
-  Categories, Ingredients, Tables, Dishes, Orders, Reviews, OrderItems
+  Categories, Ingredients, Tables, Dishes, Orders, Reviews, Accounts,
+  Employee, Clients
 )
 from . import db
+
+
+def update_user() -> [str, int]:
+  """ Updates user in the database. """
+  user_id = request.args.get("id")
+  user = Accounts.query.get(user_id)
+  if user.role == "client":
+    return update_client(user_id)
+  if user.role == "employee":
+    return update_employee(user_id)
+
+
+def update_client(user_id: str) -> [str, int]:
+  """ Updates client in the database. """
+  data = request.get_json()
+  user = Clients.query.filter_by(account_id=user_id).first()
+  if not user:
+    return "User not found!", 404
+  if "firstname" in data:
+    user.firstname = data.get("firstname")
+  if "lastname" in data:
+    user.lastname = data.get("lastname")
+  if "telephone" in data:
+    user.telephone = data.get("telephone")
+  db.session.commit()
+  return f"User with id {user.account_id} updated!", 200
+
+
+def update_employee(user_id: str) -> [str, int]:
+  """ Updates employee in the database. """
+  data = request.get_json()
+  user = Employee.query.filter_by(account_id=user_id).first()
+  if not user:
+    return "User not found!", 404
+  if "firstname" in data:
+    user.firstname = data.get("firstname")
+  if "lastname" in data:
+    user.lastname = data.get("lastname")
+  if "telephone" in data:
+    user.telephone = data.get("telephone")
+  if "position" in data:
+    user.position = data.get("position")
+  if "is_available" in data:
+    user.is_available = data.get("is_available")
+  if "description" in data:
+    user.description = data.get("description")
+  db.session.commit()
+  return f"User with id {user.account_id} updated!", 200
 
 
 def update_category() -> [str, int]:

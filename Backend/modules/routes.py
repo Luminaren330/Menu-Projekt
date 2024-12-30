@@ -14,11 +14,11 @@ from .post_methods import (
 )
 from .delete_methods import (
   delete_category, delete_ingredient, delete_table, delete_dish,
-  delete_order_item, delete_order, delete_review
+  delete_order_item, delete_order, delete_review, delete_user
 )
 from .update_methods import (
   update_category, update_ingredient, update_table, update_dish,
-  update_review, update_order, update_order_item
+  update_review, update_order, update_order_item, update_user
 )
 
 
@@ -66,10 +66,10 @@ def manage_users() -> tuple[Response, int]:
     response = get_users()
     return jsonify(response), 200
   elif request.method == "DELETE":
-    message, status_code = delete_category()
+    message, status_code = delete_user()
     return jsonify({"message": message}), status_code
   elif request.method == "PATCH":
-    message, status_code = update_category()
+    message, status_code = update_user()
     return jsonify({"message": message}), status_code
 
 

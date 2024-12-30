@@ -4,9 +4,28 @@ from flask import request, session
 
 from .models import (
   Categories, Ingredients, Tables, Dishes, dishes_ingredients, Orders, Reviews,
-  OrderItems
+  OrderItems, Accounts, Employee, Clients
 )
 from . import db
+
+
+def delete_user() -> [str, int]:
+  """ Deletes user from the database. """
+  user_id = request.args.get("id")
+  if not user_id:
+    return "Missing 'user_id' parameter", 404
+  user = Accounts.query.get(user_id)
+  if not user:
+    return "User not found!", 400
+  if user.role == "client":
+    client = Clients.query.filter_by(account_id=user_id).first()
+    db.session.delete(client)
+  elif user.role == "employee":
+    employee = Employee.query.filter_by(account_id=user_id).first()
+    db.session.delete(employee)
+  db.session.delete(user)
+  db.session.commit()
+  return f"User with id = {user.account_id} deleted successfully!", 200
 
 
 def delete_category() -> [str, int]:
