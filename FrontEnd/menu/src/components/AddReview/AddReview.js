@@ -6,6 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import ReactStars from "react-stars";
 import Popup from "../Popup/Popup";
 import Axios from "axios";
+import { useGlobalContext } from "../context/context";
 
 const AddReview = () => {
   const { id } = useParams();
@@ -15,6 +16,7 @@ const AddReview = () => {
   const [dish, setDish] = useState({});
   const [wrong, setWrong] = useState(false);
   const navigate = useNavigate();
+  const { user } = useGlobalContext();
 
   useEffect(() => {
     Axios.get("http://127.0.01:5000/dishes").then((res) => {
@@ -44,6 +46,7 @@ const AddReview = () => {
       dish_id: id,
       stars: stars,
       comment: comment,
+      user_id: user.user_id,
     }).then(() => {
       setWrong(false);
       togglePopup(true);

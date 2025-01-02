@@ -8,6 +8,9 @@ import ChoosePlace from "./components/ChoosePlace/ChoosePlace";
 import ClientForm from "./components/ClientForm/ClientForm";
 import Orders from "./components/Orders/Orders";
 import AddNewProduct from "./components/AddNewProduct/AddNewProduct";
+import Error from "./components/Error/Error";
+import AddIngredient from "./components/AddIngredients/AddIngredients";
+import AddCategory from "./components/AddIngredients/AddCategory";
 import {
   BrowserRouter as Router,
   Route,
@@ -20,7 +23,7 @@ import Login from "./components/Login/Login";
 import { useGlobalContext } from "./components/context/context";
 
 function App() {
-  const { isLogedIn, isAdmin } = useGlobalContext();
+  const { isLogedIn, isAdmin, isWorker } = useGlobalContext();
   return (
     <>
       <Router>
@@ -61,7 +64,9 @@ function App() {
           ></Route>
           <Route
             path="/orders"
-            element={isAdmin ? <Orders /> : <Navigate to="/login" />}
+            element={
+              isWorker || isAdmin ? <Orders /> : <Navigate to="/login" />
+            }
           ></Route>
           <Route
             path="/workers"
@@ -73,8 +78,17 @@ function App() {
           ></Route>
           <Route
             path="/menu/addnewproduct"
-            element={isLogedIn ? <AddNewProduct /> : <Navigate to="/login" />}
+            element={isAdmin ? <AddNewProduct /> : <Navigate to="/login" />}
           ></Route>
+          <Route
+            path="/addingredient"
+            element={isAdmin ? <AddIngredient /> : <Navigate to="/login" />}
+          ></Route>
+          <Route
+            path="/addcategory"
+            element={isAdmin ? <AddCategory /> : <Navigate to="/login" />}
+          ></Route>
+          <Route path="/error" element={<Error />} />
         </Routes>
       </Router>
     </>

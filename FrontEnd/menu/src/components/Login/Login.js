@@ -5,7 +5,7 @@ import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 const Login = () => {
-  const { setIsLogedIn, setIsAdmin, setUser } = useGlobalContext();
+  const { setIsLogedIn, setIsAdmin, setUser, setIsWorker } = useGlobalContext();
   const [login, setLogin] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -37,13 +37,16 @@ const Login = () => {
         const userData = {
           email: login,
           role: res.data.user_data.role,
-          user_id: res.data.user_data.user_id
+          user_id: res.data.user_data.user_id,
         };
+        console.log(res);
         setIsLogedIn(true);
         setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData)); // Zapisz użytkownika w localStorage
-        if (res.data.role === "admin") {
+        localStorage.setItem("user", JSON.stringify(userData));
+        if (res.data.user_data.role === "admin") {
           setIsAdmin(true);
+        } else if (res.data.user_data.role === "employee") {
+          setIsWorker(true);
         }
         alert("Pomyslnie zalogowano");
         navigate("/dashboard");
@@ -70,11 +73,7 @@ const Login = () => {
           lastname: lastName,
           telephone: phone,
         };
-        setIsLogedIn(true);
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData)); // Zapisz użytkownika w localStorage
-        alert("Pomyslnie założono konto");
-        navigate("/dashboard");
+        handleLogin();
       } else {
         alert("Niepoprawne dane rejestarcji");
       }

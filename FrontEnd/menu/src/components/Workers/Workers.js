@@ -1,6 +1,6 @@
 import styles from "./Workers.module.scss";
 import Navbar from "../Navbar/Navbar";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Axios from "axios";
 import { Link } from "react-router-dom";
 
@@ -8,18 +8,20 @@ const Workers = () => {
   const [workers, setWorkers] = useState([]);
   const [index, setIndex] = useState(0);
 
-  const getWorkers = async () => {
-    // await Axios.get("http://localhost:3001/workers").then((response) => {
-    //   setWorkers(response.data);
-    // });
-  };
+  const getWorkers = useCallback(() => {
+    Axios.get("http://127.0.01:5000/users").then((res) => {
+      setWorkers(res.data.employee_records || []);
+      console.log(workers);
+    });
+  }, []);
 
   useEffect(() => {
     getWorkers();
-  }, []);
+  }, [getWorkers]);
 
   const worker = workers[index] || {};
-  const { Name, Surname, PhoneNumber, Position } = worker;
+  const { firstname, lastname, telephone, position, email, is_available } =
+    worker;
   return (
     <>
       <Navbar></Navbar>
@@ -33,32 +35,40 @@ const Workers = () => {
             {workers.map((worker, indx) => {
               return (
                 <button
-                  key={worker.WorkerId}
+                  key={worker.account_id}
                   onClick={() => setIndex(indx)}
                   className={`${styles.nameBtn} ${
                     indx === index && styles.activeBtn
                   }`}
                 >
-                  {worker.Name}
+                  {worker.firstname}
                 </button>
               );
             })}
           </div>
           <article className={styles.worker}>
             <h3>
-              {Name} {Surname}
+              {firstname} {lastname}
             </h3>
-            <h4>{Position}</h4>
+            <h4>{position}</h4>
             <div className={styles.phone}>
               <p>Nr telefonu: </p>
-              <p>{PhoneNumber}</p>
+              <p>{telephone}</p>
+            </div>
+            <div className={styles.phone}>
+              <p>Email: </p>
+              <p>{email}</p>
+            </div>
+            <div className={styles.phone}>
+              <p>Czy jest dostępny </p>
+              <input type="checkbox" checked={is_available} readOnly />
+            </div>
+            <div className={styles.add}>
+              <Link to="/workers/addworker" className={styles.addWorker}>
+                Dodaj pracownika
+              </Link>
             </div>
           </article>
-        </div>
-        <div className={styles.add}>
-          <Link to="/workers/addworker" className={styles.addWorker}>
-            Dodaj pracownika
-          </Link>
         </div>
       </section>
     </>

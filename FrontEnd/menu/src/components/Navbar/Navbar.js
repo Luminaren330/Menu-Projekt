@@ -10,7 +10,14 @@ const Navbar = () => {
   const [showLinks, setShowLinks] = useState(false);
   const linksContainerRef = useRef(null);
   const linksRef = useRef(null);
-  const { isLogedIn, isAdmin, setIsLogedIn, setIsAdmin } = useGlobalContext();
+  const {
+    isLogedIn,
+    isAdmin,
+    isWorker,
+    setIsLogedIn,
+    setIsAdmin,
+    setIsWorker,
+  } = useGlobalContext();
   const logedInText = isLogedIn ? "Wyloguj" : "Zaloguj";
   const navigate = useNavigate();
 
@@ -55,7 +62,10 @@ const Navbar = () => {
           <ul className={styles.links} ref={linksRef}>
             {links.map((linkers) => {
               const { id, link, text } = linkers;
-              if (id < 2 || (id < 3 && isLogedIn) || isAdmin) {
+              if (
+                (id !== 2 && (isAdmin || isWorker)) ||
+                (!isAdmin && !isWorker && id < 3)
+              ) {
                 return (
                   <li key={id}>
                     <Link to={link}>{text}</Link>

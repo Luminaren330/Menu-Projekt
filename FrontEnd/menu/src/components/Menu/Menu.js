@@ -4,19 +4,20 @@ import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/context";
 import Navbar from "../Navbar/Navbar";
 import menu from "./menu-tmpdata";
-import { FaArrowRight, FaPlus, FaMinus } from "react-icons/fa";
+import { FaArrowRight, FaPlus, FaMinus, FaTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Popup from "../Popup/Popup";
 import Axios from "axios";
 
 const Menu = () => {
   const navigate = useNavigate();
-  const { isLogedIn, isAdmin } = useGlobalContext();
+  const { isLogedIn, isAdmin, isWorker } = useGlobalContext();
 
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [quantities, setQuantities] = useState({});
+  const [isPressed, setIsPressed] = useState(false);
 
   const categories = ["All", ...new Set(category.map((item) => item.name))];
 
@@ -24,6 +25,7 @@ const Menu = () => {
     Axios.get("http://127.0.01:5000/dishes")
       .then((res) => {
         setProducts(res.data.records || []);
+        console.log(res.data.records);
       })
       .catch(() => navigate("/error"));
   }, [navigate]);
@@ -39,7 +41,17 @@ const Menu = () => {
   useEffect(() => {
     getDishes();
     getCategories();
-  }, [getDishes, getCategories]);
+  }, [getDishes, getCategories, isPressed]);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      const initialQuantities = products.reduce((acc, product) => {
+        acc[product.dish_id] = 1;
+        return acc;
+      }, {});
+      setQuantities(initialQuantities);
+    }
+  }, [products]);
 
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
@@ -48,15 +60,42 @@ const Menu = () => {
   };
 
   const addToOrderDetail = (dish_id) => {
-    togglePopup(true);
-    console.log(quantities);
+    setQuantities((prevQuantities) => {
+      if (prevQuantities[dish_id]) {
+        return prevQuantities;
+      }
+      return { ...prevQuantities, [dish_id]: 1 };
+    });
 
-    setTimeout(() => {
-      togglePopup(false);
-    }, 5000);
-
-    setQuantities((prevQuantities) => ({ ...prevQuantities, [dish_id]: 1 }));
+    Axios.post("http://127.0.01:5000/carts", {
+      dish_id: dish_id,
+      quantity: quantities[dish_id],
+    })
+      .then((res) => {
+        togglePopup(true);
+        setTimeout(() => {
+          togglePopup(false);
+        }, 5000);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
+
+  const deleteDish = useCallback(
+    (dish_id) => {
+      setIsPressed(false);
+      Axios.delete(`http://127.0.01:5000/dishes?id=${dish_id}`)
+        .then(() => {
+          setIsPressed(true);
+          alert("Usunięto danie");
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    },
+    [setIsPressed, navigate]
+  );
 
   const filteredProducts = useMemo(() => {
     if (Array.isArray(products)) {
@@ -116,7 +155,13 @@ const Menu = () => {
             {filteredProducts.map((product) => (
               <div key={product.dish_id} className={styles.menuItem}>
                 <div className={styles.menuImage}>
-                  <img src={product.photo_url} alt={product.name} />
+                  <img
+                    src={`/${product.photo_url
+                      .split("\\")
+                      .slice(-2)
+                      .join("/")}`}
+                    alt={product.name}
+                  />
                 </div>
                 <div className={styles.menuDesc}>
                   <div className={styles.headerAndAdd}>
@@ -142,12 +187,21 @@ const Menu = () => {
                           <FaPlus />
                         </button>
                       </div>
-                      <button
-                        className={styles.orderButton}
-                        onClick={() => addToOrderDetail(product.dish_id)}
-                      >
-                        Dodaj do Zamówienia <FaArrowRight />
-                      </button>
+                      {!isAdmin && !isWorker ? (
+                        <button
+                          className={styles.orderButton}
+                          onClick={() => addToOrderDetail(product.dish_id)}
+                        >
+                          Dodaj do Zamówienia <FaArrowRight />
+                        </button>
+                      ) : isAdmin ? (
+                        <button
+                          className={styles.deleteBtn}
+                          onClick={() => deleteDish(product.dish_id)}
+                        >
+                          Usuń <FaTrashAlt />
+                        </button>
+                      ) : null}
                     </div>
                   </div>
                   <p>{product.description}</p>
@@ -166,7 +220,7 @@ const Menu = () => {
             ))}
           </div>
           <div className={styles.btnBottom}>
-            {!isAdmin ? (
+            {isAdmin ? (
               <Link className={styles.yourOrderBtn} to={"/menu/addnewproduct"}>
                 Dodaj nowy produkt
               </Link>

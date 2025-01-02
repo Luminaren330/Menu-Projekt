@@ -4,16 +4,18 @@ import reviews from "./reviews-tmpdata";
 import Navbar from "../Navbar/Navbar";
 import styles from "./Reviews.module.scss";
 import { FaRegUserCircle } from "react-icons/fa";
+import { useGlobalContext } from "../context/context";
 import ReactStars from "react-stars";
 import { Link } from "react-router-dom";
 import Axios from "axios";
 
 const Reviews = () => {
   const { id } = useParams();
+  const { isLogedIn, isAdmin, isWorker } = useGlobalContext();
   const [reviewData, setReviewData] = useState([]);
 
   useEffect(() => {
-    Axios.get(`http://127.0.01:5000/reviews?id=${id}`).then((res) => {
+    Axios.get(`http://127.0.01:5000/reviews?dish_id=${id}`).then((res) => {
       setReviewData(res.data.records || []);
     });
   }, [id]);
@@ -26,7 +28,7 @@ const Reviews = () => {
           <h1 className={styles.menuHeader}>Reviews</h1>
           <div className={styles.categories}>
             {reviewData.map((review) => (
-              <div key={review.id} className={styles.user}>
+              <div key={review.review_id} className={styles.user}>
                 <div className={styles.icon}>
                   <FaRegUserCircle />
                 </div>
@@ -50,9 +52,11 @@ const Reviews = () => {
             <Link className={styles.yourOrderBtn} to={"/menu"}>
               Wróć
             </Link>
-            <Link className={styles.yourOrderBtn} to={`/addreview/${id}`}>
-              Dodaj recenzję
-            </Link>
+            {!isAdmin && !isWorker ? (
+              <Link className={styles.yourOrderBtn} to={`/addreview/${id}`}>
+                Dodaj recenzję
+              </Link>
+            ) : null}
           </div>
         </div>
       </div>

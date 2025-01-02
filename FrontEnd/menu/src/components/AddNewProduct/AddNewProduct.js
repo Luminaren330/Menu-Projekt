@@ -1,10 +1,11 @@
 import styles from "./AddNewProduct.module.scss";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "../Navbar/Navbar";
 import StringInput from "../AddReview/StringInput";
 import FloatInput from "../AddReview/FloatInput";
 import { useNavigate } from "react-router-dom";
 import TextAreaInput from "../AddReview/TextAreaInput";
+import MultiSelectInput from "../AddReview/MultiSelectInput";
 import Dropdown from "../AddReview/Dropdown";
 import Axios from "axios";
 
@@ -19,8 +20,20 @@ const AddNewProduct = () => {
   const [wrong, setWrong] = useState(false);
   const [badPrice, setBadPrice] = useState(false);
   const navigate = useNavigate();
+  const [categoryOptions, setCategoryOptions] = useState([]);
+  const [ingredientOptions, setIngredientOptions] = useState([]);
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
 
-  const categoryOptions = ["Przystawka", "Wino", "Główne danie", "Deser"];
+  useEffect(() => {
+    Axios.get("http://127.0.01:5000/categories").then((res) => {
+      const categoryNames = (res.data.records || []).map((item) => item.name);
+      setCategoryOptions(categoryNames);
+    });
+    Axios.get("http://127.0.01:5000/ingredients").then((res) => {
+      const ingredientNames = (res.data.records || []).map((item) => item.name);
+      setIngredientOptions(ingredientNames);
+    });
+  }, []);
 
   const CategorySet = (event) => {
     setCategory(event.target.value);
@@ -29,7 +42,6 @@ const AddNewProduct = () => {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      console.log(file);
       setPhoto(file);
       setPreview(URL.createObjectURL(file));
     }
@@ -38,32 +50,31 @@ const AddNewProduct = () => {
   const addNewProduct = () => {
     setBadPrice(false);
     setWrong(false);
-    if (name.length < 5 || ingredients.length < 5 || description.length < 5) {
+    if (name.length < 5 || description.length < 5) {
       setWrong(true);
     } else if (unitPrice <= 0) {
       setBadPrice(true);
     } else {
       const formData = new FormData();
       formData.append("category", category);
-      formData.append("ingredients", [ingredients]);
+      formData.append("ingredients", selectedIngredients);
       formData.append("name", name);
       formData.append("price", unitPrice);
       formData.append("description", description);
       formData.append("photo", photo);
-      console.log("Photo", photo);
       Axios.post("http://127.0.0.1:5000/dishes", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       })
-      .then(() => {
-        alert("Pomyślnie dodano nowe danie");
-        navigate("/menu");
-      })
-      .catch((e) => {
-        alert("Brak autoryzacji");
-      });
-      }
+        .then(() => {
+          alert("Pomyślnie dodano nowe danie");
+          navigate("/menu");
+        })
+        .catch((e) => {
+          alert("Brak autoryzacji");
+        });
+    }
   };
 
   return (
@@ -82,9 +93,12 @@ const AddNewProduct = () => {
                 string="Kategoria"
                 setFunction={CategorySet}
               />
-              <TextAreaInput
-                string="Składniki: "
-                setParameter={setIngredients}
+              <MultiSelectInput
+                id="ingredients"
+                options={ingredientOptions}
+                string="Składniki:"
+                selectedItems={selectedIngredients}
+                setSelectedItems={setSelectedIngredients}
               />
               <TextAreaInput string="Opis: " setParameter={setDescription} />
               <label className={styles.formLabel}>Zdjęcie: </label>

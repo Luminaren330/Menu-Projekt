@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import styles from "./ClientForm.module.scss";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/context";
@@ -11,10 +11,12 @@ import "react-datepicker/dist/react-datepicker.css";
 import Popup from "../Popup/Popup";
 import StringInput from "../AddReview/StringInput";
 import seatImages from "./seatImages";
+import Axios from "axios";
 
 const ClientForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useGlobalContext();
   const orderType = location.state?.orderType;
   const [isAnything, setIsAnything] = useState(true);
   const [seats] = useState(tables);
@@ -34,6 +36,12 @@ const ClientForm = () => {
     setIsPopupVisible(value);
   };
 
+  const getTables = useCallback(() => {
+    Axios.get("http://127.0.01:5000/tables").then((res) => {
+      //Zapytać potem
+    });
+  });
+
   const validateTime = () => {
     const currentTime = new Date();
     const selectedTime = new Date();
@@ -49,24 +57,40 @@ const ClientForm = () => {
       setWrong(true);
       return;
     }
-    setWrong(false);
-    togglePopup(true);
-    //TODO add review
-
-    navigate("/menu");
-    setTimeout(() => {
-      togglePopup(false);
-    }, 5000);
+    Axios.post("http://127.0.01:5000/orders", {
+      take_away_time: arrivalTime,
+      user_id: user.user_id,
+    })
+      .then(() => {
+        togglePopup(true);
+        navigate("/menu");
+        setTimeout(() => {
+          togglePopup(false);
+        }, 5000);
+      })
+      .catch((err) => {
+        console.log(err);
+        navigate("/error");
+      });
   };
 
   const addTableOrder = () => {
-    togglePopup(true);
-    //TODO add review
-
-    navigate("/menu");
-    setTimeout(() => {
-      togglePopup(false);
-    }, 5000);
+    Axios.post("http://127.0.01:5000/orders", {
+      table_id: selectedSeatId,
+      user_id: user.user_id,
+      table_reservation_start_time: date,
+    })
+      .then(() => {
+        togglePopup(true);
+        navigate("/menu");
+        setTimeout(() => {
+          togglePopup(false);
+        }, 5000);
+      })
+      .catch((err) => {
+        console.log(err);
+        navigate("/error");
+      });
   };
 
   useEffect(() => {
@@ -79,7 +103,7 @@ const ClientForm = () => {
       <Navbar />
       {isPopupVisible && (
         <Popup
-          message="Dodano nową recenzję!"
+          message="Dodano twoje zamówienie!"
           onClose={() => togglePopup(false)}
         />
       )}

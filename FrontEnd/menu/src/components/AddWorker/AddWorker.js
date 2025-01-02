@@ -7,10 +7,12 @@ import { useNavigate } from "react-router-dom";
 import TextAreaInput from "../AddReview/TextAreaInput";
 import Dropdown from "../AddReview/Dropdown";
 import FormatInput from "../AddReview/FormatInput";
+import Axios from "axios";
 
 const AddWorker = () => {
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
+  const [position, setPosition] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [category, setCategory] = useState("Kelner");
   const [wrong, setWrong] = useState(false);
@@ -23,11 +25,29 @@ const AddWorker = () => {
   };
 
   const addWorker = () => {
+    console.log(name);
+    console.log(surname);
     setWrong(false);
     if (name.length < 3 || surname.length < 3) {
       setWrong(true);
     } else {
-      //TODO dodać jak baza
+      Axios.post("http://127.0.01:5000/register", {
+        email: name + surname + "@mail.com",
+        password: name.substring(0, 3) + phoneNumber.substring(0, 3),
+        role: "employee",
+        firstname: name,
+        lastname: surname,
+        telephone: parseInt(phoneNumber),
+        position: category,
+      })
+        .then(() => {
+          alert("Dodano pracownika");
+          navigate("/workers");
+        })
+        .catch((err) => {
+          console.error(err);
+          navigate("/error");
+        });
     }
   };
 
@@ -41,12 +61,12 @@ const AddWorker = () => {
             <div className={styles.form}>
               <StringInput string="Imię: " setParameter={setName} />
               <StringInput string="Nazwisko: " setParameter={setSurname} />
-              {/* <Dropdown
+              <Dropdown
                 options={categoryOptions}
                 value={category}
                 string="Rola"
                 setFunction={CategorySet}
-              /> */}
+              />
               <FormatInput
                 id="phoneNumber"
                 string="Nr telefonu:"
@@ -56,7 +76,9 @@ const AddWorker = () => {
               />{" "}
               {wrong && (
                 <div className={styles.wrong}>
-                  <h4>Pola imię lub nazwisko są za krótkie. Min 3 znaki</h4>
+                  <h4>
+                    Pola imię, pozycja lub nazwisko są za krótkie. Min 3 znaki
+                  </h4>
                 </div>
               )}
             </div>
