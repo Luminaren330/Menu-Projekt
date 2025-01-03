@@ -4,7 +4,7 @@ from flask import request, session
 
 from .models import (
   Categories, Ingredients, Tables, Dishes, dishes_ingredients, Orders, Reviews,
-  OrderItems, Accounts, Employee, Clients
+  OrderItems, Accounts, Employee, Clients, Cart
 )
 from . import db
 
@@ -95,14 +95,11 @@ def delete_order_item() -> [str, int]:
   item_id = request.args.get("id")
   if not item_id:
     return "Missing 'item_id' parameter", 404
-  items = session.get("cart", [])
-  if not items:
-    return "There is no items in a cart!", 400
-  item_exists = any(item["item_id"] == int(item_id) for item in items)
-  if not item_exists:
+  item = Cart.query.filter_by(cart_id=item_id).first()
+  if not item:
     return f"There is no item with id = {item_id} in a cart!", 400
-  items = [item for item in items if item["item_id"] != int(item_id)]
-  session["cart"] = items
+  db.session.delete(item)
+  db.session.commit()
   return f"Item with id {item_id} deleted successfully!", 200
 
 

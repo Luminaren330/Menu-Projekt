@@ -7,7 +7,7 @@ from sqlalchemy import or_, and_
 from . import db
 from .models import (
   Categories, Ingredients, Tables, Orders, Dishes, OrderItems, Reviews,
-  Accounts, Employee, Clients
+  Accounts, Employee, Clients, Cart
 )
 
 
@@ -145,16 +145,18 @@ def get_dishes() -> dict:
 
 def get_cart() -> dict:
   """ Returns dictionary of order items. """
-  if cart := session.get("cart", []):
+  user_id = request.args.get("user_id")
+  cart = Cart.query.filter_by(account_id=user_id).all()
+  if cart:
     order_items_to_return = {"count": len(cart), "records": []}
     for item in cart:
-      item_id = item.get("item_id")
-      dish = Dishes.query.get(item.get("dish_id"))
+      item_id = item.cart_id
+      dish = Dishes.query.get(item.dish_id)
       dish_name = dish.name
       dish_price = dish.price
       dish_photo = dish.photo_url
       dish_desc = dish.description
-      quantity = item.get("quantity")
+      quantity = item.quantity
       order_items_to_return["records"].append({
         "item_id": item_id,
         "dish_name": dish_name,

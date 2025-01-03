@@ -5,7 +5,7 @@ from flask import request, session
 
 from .models import (
   Categories, Ingredients, Tables, Dishes, Orders, Reviews, Accounts,
-  Employee, Clients
+  Employee, Clients, Cart
 )
 from . import db
 
@@ -153,25 +153,22 @@ def update_order_item() -> [str, int]:
   """ Updates order item in the session. """
   item_id = request.args.get("id")
   data = request.get_json()
-  items = session.get("cart", [])
-  item_exists = any(item["item_id"] == int(item_id) for item in items)
-  if not item_exists:
+  order_item = Cart.query.filter_by(cart_id=item_id).first()
+  if not order_item:
     return f"There is no item with id = {item_id} in a cart!", 404
-  for item in items:
-    if item["item_id"] == int(item_id):
-      if "dish_id" in data:
-        dish_id = data.get("dish_id")
-        try:
-          dish = Dishes.query.get(dish_id)
-          price = dish.price
-        except AttributeError:
-          return "Given dish id not found!", 404
-        item["dish_id"] = dish_id
-        item["price"] = price
-      if "quantity" in data:
-        quantity = data.get("quantity")
-        item["quantity"] = quantity
-  session["cart"] = items
+  if "dish_id" in data:
+    dish_id = data.get("dish_id")
+    try:
+      dish = Dishes.query.get(dish_id)
+      price = dish.price
+    except AttributeError:
+      return "Given dish id not found!", 404
+    order_item.dish_id = dish_id
+    order_item.price = price
+  if "quantity" in data:
+    quantity = data.get("quantity")
+    order_item.quantity = quantity
+  db.session.commit()
   return f"Order item with id {item_id} updated!", 200
 
 

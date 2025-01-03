@@ -298,3 +298,29 @@ class Tables(db.Model, UserMixin):
   def get_id(self) -> int:
     """ Returns table id. """
     return self.table_id
+
+
+class Cart(db.Model):
+  """ Cart table configuration. """
+  cart_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+  dish_id = db.Column(db.Integer, db.ForeignKey("dishes.dish_id"),
+                      nullable=False)
+  account_id = db.Column(db.Integer, db.ForeignKey("accounts.account_id"),
+                         nullable=False)
+  quantity = db.Column(db.String(150), nullable=True)
+  price = db.Column(db.Float, nullable=False)
+
+  dish = db.relationship("Dishes", backref="cart", lazy=True)
+  account = db.relationship("Accounts", backref="cart", lazy=True)
+
+  def __init__(
+    self, dish_id: int, account_id: int, quantity: int, price: float) -> None:
+    """ Class constructor """
+    self.dish_id = dish_id
+    self.account_id = account_id
+    self.quantity = quantity
+    self.price = price
+
+  def __repr__(self) -> str:
+    """ Returns table capacity and status. """
+    return f"Cart('{self.cart_id}', '{self.quantity}')"

@@ -11,7 +11,7 @@ from flask_login import login_user, logout_user
 from . import db
 from .models import (
   Accounts, Clients, Employee, Categories, Ingredients, Tables, Dishes,
-  Orders, OrderItems, Reviews
+  Orders, OrderItems, Reviews, Cart
 )
 
 
@@ -154,18 +154,17 @@ def add_new_order_item() -> [str, int]:
   data = request.get_json()
   dish_id = data.get("dish_id")
   quantity = data.get("quantity")
+  user_id = data.get("user_id")
   try:
     dish = Dishes.query.get(dish_id)
     price = dish.price
   except AttributeError:
     return "Given dish id not found!", 400
-  cart = session.get("cart", [])
-  cart.append({
-    "item_id": len(cart), "dish_id": dish_id, "quantity": quantity,
-    "price": price
-  })
-  session["cart"] = cart
-  return "Successfully added new cart!", 201
+  cart = Cart(
+    dish_id=dish_id, account_id=user_id, quantity=quantity, price=price)
+  db.session.add(cart)
+  db.session.commit()
+  return "Successfully added new order item!", 201
 
 
 def add_new_order() -> [str, int]:
@@ -186,10 +185,10 @@ def add_new_order() -> [str, int]:
       table_start_time, "%Y-%m-%d %H:%M:%S")
     table_end_time = table_start_time + timedelta(hours=2)
   order_status = "new"
-  cart = session.get("cart", [])
+  cart = Cart.query.filter_by(account_id=account_id).all()
   if not cart:
     return "Cart is empty", 400
-  total_price = sum(item["price"] * item["quantity"] for item in cart)
+  total_price = sum(item.price * int(item.quantity) for item in cart)
   order = Orders(
     table_id=table_id, account_id=account_id, total_price=total_price,
     take_away_time=take_away_time,
@@ -202,13 +201,13 @@ def add_new_order() -> [str, int]:
   for item in cart:
     order_item = OrderItems(
       order_id=order.order_id,
-      dish_id=item['dish_id'],
-      quantity=item['quantity'],
-      price=item['price']
+      dish_id=item.dish_id,
+      quantity=item.quantity,
+      price=item.price
     )
     db.session.add(order_item)
+    db.session.delete(item)
   db.session.commit()
-  session.pop("cart", None)
   return "Successfully added new order!", 201
 
 
