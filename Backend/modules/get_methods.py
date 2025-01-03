@@ -159,6 +159,7 @@ def get_cart() -> dict:
       quantity = item.quantity
       order_items_to_return["records"].append({
         "item_id": item_id,
+        "dish_id": item.dish_id,
         "dish_name": dish_name,
         "price_per_item": dish_price,
         "photo_url": dish_photo,

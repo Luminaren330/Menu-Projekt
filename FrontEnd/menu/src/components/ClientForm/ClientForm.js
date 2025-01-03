@@ -7,7 +7,6 @@ import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import tables from "./tables-tmpdata";
 import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import Popup from "../Popup/Popup";
 import StringInput from "../AddReview/StringInput";
 import seatImages from "./seatImages";
@@ -19,7 +18,7 @@ const ClientForm = () => {
   const { user } = useGlobalContext();
   const orderType = location.state?.orderType;
   const [isAnything, setIsAnything] = useState(true);
-  const [seats] = useState(tables);
+  const [seats, setSeats] = useState([]);
   const [selectedSeatId, setSelectedSeatId] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
   const [date, setDate] = useState(null);
@@ -28,7 +27,9 @@ const ClientForm = () => {
 
   const handleSeatClick = (seat) => {
     if (seat.is_available) {
-      setSelectedSeatId(seat.id === selectedSeatId ? null : seat.id);
+      setSelectedSeatId(
+        seat.table_id === selectedSeatId ? null : seat.table_id
+      );
     }
   };
 
@@ -36,11 +37,57 @@ const ClientForm = () => {
     setIsPopupVisible(value);
   };
 
+  const formatDate = (dateInput) => {
+    const dateString =
+      typeof dateInput === "string" ? dateInput : dateInput.toString();
+
+    const cleanedDate = dateString.split(" GMT")[0];
+
+    const dateObj = new Date(cleanedDate);
+
+    if (isNaN(dateObj.getTime())) {
+      throw new Error("Nieprawidłowy format daty");
+    }
+
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    const hours = String(dateObj.getHours()).padStart(2, "0");
+    const minutes = String(dateObj.getMinutes()).padStart(2, "0");
+    const seconds = String(dateObj.getSeconds()).padStart(2, "0");
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+  };
+
+  const formatTimeToDateTime = (time) => {
+    const today = new Date();
+    const [hours, minutes] = time.split(":").map(Number);
+    today.setHours(hours, minutes, 0, 0);
+
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    const formattedTime = `${String(today.getHours()).padStart(
+      2,
+      "0"
+    )}:${String(today.getMinutes()).padStart(2, "0")}:00`;
+
+    return `${year}-${month}-${day} ${formattedTime}`;
+  };
+
   const getTables = useCallback(() => {
-    Axios.get("http://127.0.01:5000/tables").then((res) => {
-      //Zapytać potem
-    });
+    if (date) {
+      Axios.get(
+        `http://127.0.01:5000/tables?start_time=${formatDate(date)}`
+      ).then((res) => {
+        setSeats(res.data.records || []);
+      });
+    }
   });
+
+  useEffect(() => {
+    getTables();
+  }, [date]);
 
   const validateTime = () => {
     const currentTime = new Date();
@@ -58,7 +105,7 @@ const ClientForm = () => {
       return;
     }
     Axios.post("http://127.0.01:5000/orders", {
-      take_away_time: arrivalTime,
+      take_away_time: formatTimeToDateTime(arrivalTime),
       user_id: user.user_id,
     })
       .then(() => {
@@ -78,7 +125,7 @@ const ClientForm = () => {
     Axios.post("http://127.0.01:5000/orders", {
       table_id: selectedSeatId,
       user_id: user.user_id,
-      table_reservation_start_time: date,
+      table_reservation_start_time: formatDate(date),
     })
       .then(() => {
         togglePopup(true);
@@ -132,7 +179,7 @@ const ClientForm = () => {
                       <div className={styles.layout}>
                         {seats.map((seat) => {
                           const seatStatus =
-                            seat.id === selectedSeatId
+                            seat.table_id === selectedSeatId
                               ? "wybrany"
                               : seat.is_available
                               ? "dostepny"
@@ -143,13 +190,13 @@ const ClientForm = () => {
 
                           return (
                             <div
-                              key={seat.id}
+                              key={seat.table_id}
                               className={styles.seatWrapper}
                               onClick={() => handleSeatClick(seat)}
                             >
                               {/* Tooltip element */}
                               <div className={styles.tooltip}>
-                                Stolik nr {seat.id}
+                                {seat.description}
                               </div>
                               <img
                                 src={seatImageSrc}

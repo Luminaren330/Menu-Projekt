@@ -11,6 +11,7 @@ import AddNewProduct from "./components/AddNewProduct/AddNewProduct";
 import Error from "./components/Error/Error";
 import AddIngredient from "./components/AddIngredients/AddIngredients";
 import AddCategory from "./components/AddIngredients/AddCategory";
+import AddTable from "./components/AddTable/AddTable";
 import {
   BrowserRouter as Router,
   Route,
@@ -64,9 +65,7 @@ function App() {
           ></Route>
           <Route
             path="/orders"
-            element={
-              isWorker || isAdmin ? <Orders /> : <Navigate to="/login" />
-            }
+            element={isLogedIn ? <Orders /> : <Navigate to="/login" />}
           ></Route>
           <Route
             path="/workers"
@@ -87,6 +86,10 @@ function App() {
           <Route
             path="/addcategory"
             element={isAdmin ? <AddCategory /> : <Navigate to="/login" />}
+          ></Route>
+          <Route
+            path="/addtable"
+            element={isAdmin ? <AddTable /> : <Navigate to="/login" />}
           ></Route>
           <Route path="/error" element={<Error />} />
         </Routes>

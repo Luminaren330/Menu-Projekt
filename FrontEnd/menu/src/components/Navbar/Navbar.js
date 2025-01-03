@@ -64,7 +64,7 @@ const Navbar = () => {
               const { id, link, text } = linkers;
               if (
                 (id !== 2 && (isAdmin || isWorker)) ||
-                (!isAdmin && !isWorker && id < 3)
+                (!isAdmin && !isWorker && id < 4)
               ) {
                 return (
                   <li key={id}>

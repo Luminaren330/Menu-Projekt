@@ -15,7 +15,6 @@ const Login = () => {
   const [isRegister, setIsRegister] = useState(false);
   const navigate = useNavigate();
 
-  // Sprawdzenie, czy użytkownik jest zalogowany po odświeżeniu strony
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
     if (savedUser) {
@@ -39,7 +38,6 @@ const Login = () => {
           role: res.data.user_data.role,
           user_id: res.data.user_data.user_id,
         };
-        console.log(res);
         setIsLogedIn(true);
         setUser(userData);
         localStorage.setItem("user", JSON.stringify(userData));

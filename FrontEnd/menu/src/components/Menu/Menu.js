@@ -11,7 +11,7 @@ import Axios from "axios";
 
 const Menu = () => {
   const navigate = useNavigate();
-  const { isLogedIn, isAdmin, isWorker } = useGlobalContext();
+  const { isLogedIn, isAdmin, isWorker, user } = useGlobalContext();
 
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState([]);
@@ -25,7 +25,6 @@ const Menu = () => {
     Axios.get("http://127.0.01:5000/dishes")
       .then((res) => {
         setProducts(res.data.records || []);
-        console.log(res.data.records);
       })
       .catch(() => navigate("/error"));
   }, [navigate]);
@@ -70,6 +69,7 @@ const Menu = () => {
     Axios.post("http://127.0.01:5000/carts", {
       dish_id: dish_id,
       quantity: quantities[dish_id],
+      user_id: user.user_id,
     })
       .then((res) => {
         togglePopup(true);
@@ -165,7 +165,9 @@ const Menu = () => {
                 </div>
                 <div className={styles.menuDesc}>
                   <div className={styles.headerAndAdd}>
-                    <h2>{product.name}</h2>
+                    <h2>
+                      {product.name} ({product.category})
+                    </h2>
                     <div className={styles.InputAndBtn}>
                       <div className={styles.quantityControl}>
                         <button
@@ -204,8 +206,10 @@ const Menu = () => {
                       ) : null}
                     </div>
                   </div>
-                  <p>{product.description}</p>
-                  <p>Składniki: {product.ingredients}</p>
+                  <p className={styles.desc}>{product.description}</p>
+                  <p className={styles.desc}>
+                    Składniki: {product.ingredients.join(",")}
+                  </p>
                   <div className={styles.priceAndReview}>
                     <p className={styles.menuPrice}>Cena: {product.price} zł</p>
                     <Link

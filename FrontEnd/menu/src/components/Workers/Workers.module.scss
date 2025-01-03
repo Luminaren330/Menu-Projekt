@@ -70,6 +70,7 @@
   align-items: center;
   transition: all 0.3s ease-in;
   text-decoration: none;
+  margin-left: 5px;
 
   &:hover {
     cursor: pointer;
@@ -77,6 +78,10 @@
     color: rgb(242, 79, 19);
     border: 1px solid rgb(242, 79, 19);
   }
+}
+
+.newBtns {
+  margin-top: 20px;
 }
 
 .worker h3,  h4 {

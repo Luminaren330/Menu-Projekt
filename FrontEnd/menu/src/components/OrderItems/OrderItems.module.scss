@@ -32,6 +32,28 @@
     justify-content: center;
     align-items: center;
 }
+.deleteBtn {
+    background-color: red;
+    color: white !important;
+    cursor: pointer;
+    border: none !important;
+    border-radius: 20px;
+    padding: 10px;
+    height: 60px;
+    width: 120px;
+    margin: 10px;
+}
+
+.updateBtn {
+    background-color: rgb(242, 79, 19);
+    color: white;
+    margin-left: 10px;
+    font-size: 18px;
+    border-radius: 20px;
+    padding: 5px;
+    border: none;
+    cursor: pointer;
+}
 
 .yourOrderBtn {
     text-align: center;

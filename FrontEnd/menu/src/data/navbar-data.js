@@ -5,25 +5,15 @@ export const links = [
     text: "Menu",
   },
   {
-    id: 6,
+    id: 3,
     link: "/orders",
     text: "Zamówienia",
   },
   {
-    id: 3,
+    id: 4,
     link: "/workers",
     text: "Pracownicy",
   },
-  // {
-  //   id: 4,
-  //   link: "/workers/addworker",
-  //   text: "Dodaj pracownika",
-  // },
-  // {
-  //   id: 5,
-  //   link: "/products/addnewproduct",
-  //   text: "Dodaj przedmiot",
-  // },
   {
     id: 2,
     link: "/yourorder",
@@ -38,5 +28,10 @@ export const links = [
     id: 8,
     link: "/addcategory",
     text: "Nowa kategoria",
+  },
+  {
+    id: 5,
+    link: "/addtable",
+    text: "Nowy stolik",
   },
 ];

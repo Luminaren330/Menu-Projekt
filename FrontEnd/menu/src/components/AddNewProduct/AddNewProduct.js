@@ -16,7 +16,7 @@ const AddNewProduct = () => {
   const [ingredients, setIngredients] = useState("");
   const [description, setDescription] = useState("");
   const [unitPrice, setUnitPrice] = useState(0);
-  const [category, setCategory] = useState("Filtr");
+  const [category, setCategory] = useState("");
   const [wrong, setWrong] = useState(false);
   const [badPrice, setBadPrice] = useState(false);
   const navigate = useNavigate();
@@ -28,6 +28,7 @@ const AddNewProduct = () => {
     Axios.get("http://127.0.01:5000/categories").then((res) => {
       const categoryNames = (res.data.records || []).map((item) => item.name);
       setCategoryOptions(categoryNames);
+      setCategory(categoryNames[0]);
     });
     Axios.get("http://127.0.01:5000/ingredients").then((res) => {
       const ingredientNames = (res.data.records || []).map((item) => item.name);
