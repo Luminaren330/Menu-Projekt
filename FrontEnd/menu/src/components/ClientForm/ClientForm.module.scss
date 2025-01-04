@@ -26,13 +26,21 @@
     margin-top: 20px;
     margin-bottom: 10px;
 }
+
+.centeredPicker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .datePicker {
-  width: 100%;
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #ccc;
   border-radius: 4px;
-  margin-top: 20px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
 }
 .menuHeader { 
     color: rgb(242, 79, 19);
@@ -154,7 +162,6 @@
 
 .form {
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: left;

@@ -3,7 +3,6 @@ import styles from "./Menu.module.scss";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/context";
 import Navbar from "../Navbar/Navbar";
-import menu from "./menu-tmpdata";
 import { FaArrowRight, FaPlus, FaMinus, FaTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Popup from "../Popup/Popup";
@@ -11,7 +10,7 @@ import Axios from "axios";
 
 const Menu = () => {
   const navigate = useNavigate();
-  const { isLogedIn, isAdmin, isWorker, user } = useGlobalContext();
+  const { isAdmin, isWorker, user } = useGlobalContext();
 
   const [products, setProducts] = useState([]);
   const [category, setCategory] = useState([]);
@@ -94,7 +93,7 @@ const Menu = () => {
           console.log(err);
         });
     },
-    [setIsPressed, navigate]
+    [setIsPressed]
   );
 
   const filteredProducts = useMemo(() => {

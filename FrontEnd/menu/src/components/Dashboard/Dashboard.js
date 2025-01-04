@@ -1,6 +1,5 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaArrowRight } from "react-icons/fa";
 import styles from "./Dashboard.module.scss";
 import Navbar from "../Navbar/Navbar";
 

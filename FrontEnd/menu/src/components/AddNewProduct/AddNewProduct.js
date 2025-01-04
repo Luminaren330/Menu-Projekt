@@ -13,7 +13,6 @@ const AddNewProduct = () => {
   const [name, setName] = useState("");
   const [photo, setPhoto] = useState(null);
   const [preview, setPreview] = useState("");
-  const [ingredients, setIngredients] = useState("");
   const [description, setDescription] = useState("");
   const [unitPrice, setUnitPrice] = useState(0);
   const [category, setCategory] = useState("");

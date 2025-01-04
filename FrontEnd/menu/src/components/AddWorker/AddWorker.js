@@ -2,9 +2,7 @@ import styles from "../AddNewProduct/AddNewProduct.module.scss";
 import React, { useState } from "react";
 import Navbar from "../Navbar/Navbar";
 import StringInput from "../AddReview/StringInput";
-import FloatInput from "../AddReview/FloatInput";
 import { useNavigate } from "react-router-dom";
-import TextAreaInput from "../AddReview/TextAreaInput";
 import Dropdown from "../AddReview/Dropdown";
 import FormatInput from "../AddReview/FormatInput";
 import Axios from "axios";
@@ -12,7 +10,6 @@ import Axios from "axios";
 const AddWorker = () => {
   const [name, setName] = useState("");
   const [surname, setSurname] = useState("");
-  const [position, setPosition] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [category, setCategory] = useState("Kelner");
   const [wrong, setWrong] = useState(false);

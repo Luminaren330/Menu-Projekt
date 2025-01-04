@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import reviews from "./reviews-tmpdata";
 import Navbar from "../Navbar/Navbar";
 import styles from "./Reviews.module.scss";
 import { FaRegUserCircle } from "react-icons/fa";
@@ -11,7 +10,7 @@ import Axios from "axios";
 
 const Reviews = () => {
   const { id } = useParams();
-  const { isLogedIn, isAdmin, isWorker } = useGlobalContext();
+  const { isAdmin, isWorker } = useGlobalContext();
   const [reviewData, setReviewData] = useState([]);
 
   useEffect(() => {

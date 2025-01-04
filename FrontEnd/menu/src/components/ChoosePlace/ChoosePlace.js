@@ -1,7 +1,6 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React from "react";
 import styles from "./ChoosePlace.module.scss";
 import { useNavigate } from "react-router-dom";
-import { useGlobalContext } from "../context/context";
 import Navbar from "../Navbar/Navbar";
 import { MdOutlineTableRestaurant } from "react-icons/md";
 import { GiPaperBagFolded } from "react-icons/gi";

@@ -35,6 +35,7 @@ const Navbar = () => {
       navigate("/login");
     } else {
       setIsAdmin(false);
+      setIsWorker(false);
       setIsLogedIn(false);
       localStorage.removeItem("user");
       alert("Pomyślnie wylogowano");

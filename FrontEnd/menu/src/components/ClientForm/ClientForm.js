@@ -1,16 +1,15 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styles from "./ClientForm.module.scss";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/context";
 import Navbar from "../Navbar/Navbar";
-import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import tables from "./tables-tmpdata";
-import DatePicker from "react-datepicker";
 import Popup from "../Popup/Popup";
-import StringInput from "../AddReview/StringInput";
 import seatImages from "./seatImages";
 import Axios from "axios";
+import Datetime from "react-datetime";
+import "react-datetime/css/react-datetime.css";
 
 const ClientForm = () => {
   const navigate = useNavigate();
@@ -21,8 +20,7 @@ const ClientForm = () => {
   const [seats, setSeats] = useState([]);
   const [selectedSeatId, setSelectedSeatId] = useState(null);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-  const [date, setDate] = useState(null);
-  const [arrivalTime, setArrivalTime] = useState("");
+  const [dateTime, setDateTime] = useState(null);
   const [wrong, setWrong] = useState(false);
 
   const handleSeatClick = (seat) => {
@@ -38,17 +36,10 @@ const ClientForm = () => {
   };
 
   const formatDate = (dateInput) => {
-    const dateString =
-      typeof dateInput === "string" ? dateInput : dateInput.toString();
-
-    const cleanedDate = dateString.split(" GMT")[0];
-
-    const dateObj = new Date(cleanedDate);
-
+    const dateObj = new Date(dateInput);
     if (isNaN(dateObj.getTime())) {
       throw new Error("Nieprawidłowy format daty");
     }
-
     const year = dateObj.getFullYear();
     const month = String(dateObj.getMonth() + 1).padStart(2, "0");
     const day = String(dateObj.getDate()).padStart(2, "0");
@@ -59,44 +50,23 @@ const ClientForm = () => {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   };
 
-  const formatTimeToDateTime = (time) => {
-    const today = new Date();
-    const [hours, minutes] = time.split(":").map(Number);
-    today.setHours(hours, minutes, 0, 0);
-
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, "0");
-    const day = String(today.getDate()).padStart(2, "0");
-    const formattedTime = `${String(today.getHours()).padStart(
-      2,
-      "0"
-    )}:${String(today.getMinutes()).padStart(2, "0")}:00`;
-
-    return `${year}-${month}-${day} ${formattedTime}`;
-  };
-
   const getTables = useCallback(() => {
-    if (date) {
+    if (dateTime) {
       Axios.get(
-        `http://127.0.01:5000/tables?start_time=${formatDate(date)}`
+        `http://127.0.01:5000/tables?start_time=${formatDate(dateTime)}`
       ).then((res) => {
         setSeats(res.data.records || []);
       });
     }
-  });
+  }, [dateTime]);
 
   useEffect(() => {
     getTables();
-  }, [date]);
+  }, [dateTime, getTables]);
 
   const validateTime = () => {
     const currentTime = new Date();
-    const selectedTime = new Date();
-
-    const [hours, minutes] = arrivalTime.split(":");
-    selectedTime.setHours(hours, minutes, 0);
-
-    return selectedTime.getTime() - currentTime.getTime() >= 3600000;
+    return new Date(dateTime).getTime() - currentTime.getTime() >= 3600000;
   };
 
   const addOrder = () => {
@@ -105,15 +75,12 @@ const ClientForm = () => {
       return;
     }
     Axios.post("http://127.0.01:5000/orders", {
-      take_away_time: formatTimeToDateTime(arrivalTime),
+      take_away_time: formatDate(dateTime),
       user_id: user.user_id,
     })
       .then(() => {
-        togglePopup(true);
         navigate("/menu");
-        setTimeout(() => {
-          togglePopup(false);
-        }, 5000);
+        alert("Zamowienie złożone");
       })
       .catch((err) => {
         console.log(err);
@@ -121,18 +88,23 @@ const ClientForm = () => {
       });
   };
 
+  const goBack = () => {
+    navigate("/chooseplace");
+  };
+
   const addTableOrder = () => {
+    if (!validateTime()) {
+      setWrong(true);
+      return;
+    }
     Axios.post("http://127.0.01:5000/orders", {
       table_id: selectedSeatId,
       user_id: user.user_id,
-      table_reservation_start_time: formatDate(date),
+      table_reservation_start_time: formatDate(dateTime),
     })
       .then(() => {
-        togglePopup(true);
         navigate("/menu");
-        setTimeout(() => {
-          togglePopup(false);
-        }, 5000);
+        alert("Stolik zarezerwowany");
       })
       .catch((err) => {
         console.log(err);
@@ -154,26 +126,29 @@ const ClientForm = () => {
           onClose={() => togglePopup(false)}
         />
       )}
-      <div className={styles.container}>
+      <div className={styles.timeInputContainer}>
         <div className={styles.menu}>
           {orderType === "in" ? (
             <div>
               <h2 className={styles.menuHeader}>
-                Wybierz stolik i date rezerwacji
+                Wybierz stolik i datę rezerwacji
               </h2>
-              <div className={styles.hourPick}>
-                <h1>Najpierw Wybierz Dzień i Godzinę</h1>
-                <DatePicker
-                  selected={date}
-                  onChange={(date) => setDate(date)}
-                  timeInputLabel="Czas przyjścia"
-                  dateFormat="MM/dd/yyyy h:mm aa"
-                  showTimeInput
+              <div className={styles.centeredPicker}>
+                <Datetime
+                  value={dateTime}
+                  onChange={(date) => setDateTime(date)}
+                  dateFormat="YYYY-MM-DD"
+                  timeFormat="HH:mm"
                   className={styles.datePicker}
                 />
               </div>
+              {wrong && (
+                <div className={styles.wrong}>
+                  <p>Data musi być późniejsza</p>
+                </div>
+              )}
               {isAnything ? (
-                date && (
+                dateTime && (
                   <>
                     <div className={styles.centerLay}>
                       <div className={styles.layout}>
@@ -194,7 +169,6 @@ const ClientForm = () => {
                               className={styles.seatWrapper}
                               onClick={() => handleSeatClick(seat)}
                             >
-                              {/* Tooltip element */}
                               <div className={styles.tooltip}>
                                 {seat.description}
                               </div>
@@ -246,6 +220,12 @@ const ClientForm = () => {
                             </button>
                           </div>
                         )}
+                        <button
+                          className={styles.yourOrderBtn}
+                          onClick={goBack}
+                        >
+                          Wróć
+                        </button>
                       </div>
                     </div>
                   </>
@@ -258,26 +238,33 @@ const ClientForm = () => {
             </div>
           ) : (
             <>
-              <div className={styles.timeInputContainer}>
-                <h2 className={styles.menuHeader}>Podaj Godzinę przyjścia</h2>
-                <input
-                  type="time"
-                  className={styles.timeInput}
-                  value={arrivalTime}
-                  onChange={(e) => setArrivalTime(e.target.value)}
+              <h2 className={styles.menuHeader}>
+                Podaj Datę i Godzinę przyjścia
+              </h2>
+              <div className={styles.centeredPicker}>
+                <Datetime
+                  value={dateTime}
+                  onChange={(date) => setDateTime(date)}
+                  dateFormat="YYYY-MM-DD"
+                  timeFormat="HH:mm"
+                  className={styles.datePicker}
                 />
-                {wrong && (
-                  <div className={styles.wrong}>
-                    <p>
-                      Godzina przyjścia jest wymagana, min 1 godzina od teraz
-                    </p>
-                  </div>
-                )}
-                <div className={styles.form}>
+              </div>
+              {wrong && (
+                <div className={styles.wrong}>
+                  <p>Godzina przyjścia jest wymagana, min 1 godzina od teraz</p>
+                </div>
+              )}
+
+              <div className={styles.form}>
+                {dateTime ? (
                   <button className={styles.yourOrderBtn} onClick={addOrder}>
                     Złóż zamówienie
                   </button>
-                </div>
+                ) : null}
+                <button className={styles.yourOrderBtn} onClick={goBack}>
+                  Wróć
+                </button>
               </div>
             </>
           )}

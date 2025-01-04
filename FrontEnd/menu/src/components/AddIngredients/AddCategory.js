@@ -1,15 +1,13 @@
 import styles from "./AddIngredients.module.scss";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import Navbar from "../Navbar/Navbar";
 import StringInput from "../AddReview/StringInput";
-import { useNavigate } from "react-router-dom";
 import Axios from "axios";
 import Popup from "../Popup/Popup";
 
 const AddCategory = () => {
   const [name, setName] = useState("");
   const [wrong, setWrong] = useState(false);
-  const navigate = useNavigate();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const togglePopup = (value) => {

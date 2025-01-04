@@ -26,7 +26,7 @@ const AddReview = () => {
 
       setDish(oneDish[0]);
     });
-  }, []);
+  }, [id]);
 
   const ratingChange = (rating) => {
     setStars(rating);

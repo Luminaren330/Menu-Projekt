@@ -10,7 +10,6 @@ const Login = () => {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("");
   const [phone, setPhone] = useState(0);
   const [isRegister, setIsRegister] = useState(false);
   const navigate = useNavigate();
@@ -64,13 +63,6 @@ const Login = () => {
       telephone: phone,
     }).then((res) => {
       if (res.data.message === "User registered successfully!") {
-        const userData = {
-          email: login,
-          role: "client",
-          firstname: firstName,
-          lastname: lastName,
-          telephone: phone,
-        };
         handleLogin();
       } else {
         alert("Niepoprawne dane rejestarcji");

@@ -24,7 +24,7 @@ import Login from "./components/Login/Login";
 import { useGlobalContext } from "./components/context/context";
 
 function App() {
-  const { isLogedIn, isAdmin, isWorker } = useGlobalContext();
+  const { isLogedIn, isAdmin } = useGlobalContext();
   return (
     <>
       <Router>

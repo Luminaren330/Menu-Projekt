@@ -13,7 +13,6 @@ const Workers = () => {
   const getWorkers = useCallback(() => {
     Axios.get("http://127.0.0.1:5000/users").then((res) => {
       setWorkers(res.data.employee_records || []);
-      console.log(res.data.employee_records);
     });
   }, []);
 

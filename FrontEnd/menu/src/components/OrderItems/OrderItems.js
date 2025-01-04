@@ -1,35 +1,29 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import styles from "./OrderItems.module.scss";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "../context/context";
 import Navbar from "../Navbar/Navbar";
-import { FaArrowRight, FaTrashAlt } from "react-icons/fa";
+import { FaTrashAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Axios from "axios";
 
 const OrderItems = () => {
   const navigate = useNavigate();
-  const { isLogedIn, isAdmin, user } = useGlobalContext();
+  const { user } = useGlobalContext();
 
   const [orders, setOrders] = useState([]);
   const [totalPrice, setTotalPrice] = useState(0);
   const [isPressed, setIsPressed] = useState(false);
-  const [cartId, setCartId] = useState(0);
-
   const getOrderItems = useCallback(() => {
     Axios.get(`http://127.0.01:5000/carts?user_id=${user.user_id}`)
       .then((res) => {
         setOrders(res.data.records || []);
-        console.log(res.data.records);
-        if (res.data.records.length > 0) {
-          setCartId(res.data.records[0].item_id);
-        }
       })
       .catch((err) => {
         console.error("Błąd podczas pobierania zamówień:", err);
         navigate("/error");
       });
-  }, [navigate]);
+  }, [navigate, user.user_id]);
 
   useEffect(() => {
     getOrderItems();
@@ -58,10 +52,8 @@ const OrderItems = () => {
       });
   };
 
-  const updateOrderQuantity = (id, newQuantity) => {
+  const updateOrderQuantity = (id, newQuantity, cartId) => {
     setIsPressed(false);
-    console.log(id);
-    console.log(newQuantity);
     Axios.patch(`http://127.0.01:5000/carts?id=${cartId}`, {
       dish_id: id,
       quantity: newQuantity,
@@ -126,7 +118,8 @@ const OrderItems = () => {
                             onClick={() =>
                               updateOrderQuantity(
                                 product.dish_id,
-                                product.quantity
+                                product.quantity,
+                                product.item_id
                               )
                             }
                           >
