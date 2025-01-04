@@ -6,8 +6,57 @@ from sqlalchemy import or_, and_
 
 from . import db
 from .models import (
-  Categories, Ingredients, Tables, Orders, Dishes, OrderItems, Reviews
+  Categories, Ingredients, Tables, Orders, Dishes, OrderItems, Reviews,
+  Accounts, Employee, Clients, Cart
 )
+
+
+def get_users() -> dict:
+  """ Return dictionary of users. """
+  all_accounts = Accounts.query.all()
+  clients_accounts = db.session.query(Accounts, Clients).join(
+    Clients, Accounts.account_id == Clients.account_id).all()
+  employee_accounts = db.session.query(Accounts, Employee).join(
+    Employee, Accounts.account_id == Employee.account_id)
+
+  admins_to_return = [{
+      "account_id": record.account_id,
+      "email": record.email,
+      "role": record.role
+    }
+    for record in all_accounts if record.role == "admin"
+  ]
+  response = {
+    "admin_count": len(admins_to_return),
+    "admin_records": admins_to_return}
+  clients_to_return = [{
+    "account_id": record.account_id,
+    "email": record.email,
+    "role": record.role,
+    "firstname": client.firstname,
+    "lastname": client.lastname,
+    "telephone": client.telephone
+  }
+    for record, client in clients_accounts if record.role == "client"
+  ]
+  response["client_count"] = len(clients_to_return)
+  response["client_records"] = clients_to_return
+  employee_to_return = [{
+    "account_id": record.account_id,
+    "email": record.email,
+    "role": record.role,
+    "firstname": employee.firstname,
+    "lastname": employee.lastname,
+    "telephone": employee.telephone,
+    "position": employee.position,
+    "description": employee.description,
+    "is_available": employee.is_available
+  }
+    for record, employee in employee_accounts if record.role == "employee"
+  ]
+  response["employee_count"] = len(employee_to_return)
+  response["employee_records"] = employee_to_return
+  return response
 
 
 def get_categories() -> dict:
@@ -96,18 +145,21 @@ def get_dishes() -> dict:
 
 def get_cart() -> dict:
   """ Returns dictionary of order items. """
-  if cart := session.get("cart", []):
+  user_id = request.args.get("user_id")
+  cart = Cart.query.filter_by(account_id=user_id).all()
+  if cart:
     order_items_to_return = {"count": len(cart), "records": []}
     for item in cart:
-      item_id = item.get("item_id")
-      dish = Dishes.query.get(item.get("dish_id"))
+      item_id = item.cart_id
+      dish = Dishes.query.get(item.dish_id)
       dish_name = dish.name
       dish_price = dish.price
       dish_photo = dish.photo_url
       dish_desc = dish.description
-      quantity = item.get("quantity")
+      quantity = item.quantity
       order_items_to_return["records"].append({
         "item_id": item_id,
+        "dish_id": item.dish_id,
         "dish_name": dish_name,
         "price_per_item": dish_price,
         "photo_url": dish_photo,

@@ -1,0 +1,189 @@
+@import '../../App.scss';
+
+
+.container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 45px;
+    width: 80%;
+    background-color: white !important;
+    border-radius: 20px;
+}
+
+.headerAndAdd {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.orderButton {
+    background-color: rgb(242, 79, 19);
+    color: white !important;
+    cursor: pointer;
+    border: none !important;
+    border-radius: 20px;
+    padding: 10px;
+}
+
+.deleteBtn {
+    background-color: red;
+    color: white !important;
+    cursor: pointer;
+    border: none !important;
+    border-radius: 20px;
+    padding: 10px;
+}
+.menuHeader { 
+    color: rgb(242, 79, 19);
+    text-align: center;
+    font-size: 40px;
+    margin-top: 10px;
+}
+.categories {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.categoryButton {
+    background-color: rgb(242, 79, 19);
+    color: white;
+    border: none;
+    padding: 5px 15px;
+    font-size: 25px;
+    border-radius: 15px;
+    cursor: pointer;
+    height: 40px;
+}
+.active {
+    background-color: rgb(209, 67, 15);
+}
+
+.menuItems {
+    margin-top: 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
+.desc {
+    font-size: 17px;
+    margin-top: 5px;
+}
+
+.menuItem {
+    border: 1px solid black;
+    margin-bottom: 15px;
+    border-radius: 15px;
+    width: 100%;
+    display: flex;
+}
+
+.menuPrice {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.menuImage img {
+    width: 120px;
+    min-height: 120px;
+    height: 100%;
+    border-radius: 15px;
+}
+
+.quantityControl {
+  display: flex;
+  align-items: center;
+  margin-left: 10px; 
+}
+
+.quantityButton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.quantityInput {
+  width: 30px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin: 0 5px;
+  font-size: 20px;
+}
+
+.InputAndBtn {
+    display: flex;
+    gap: 10px
+}
+
+
+.yourOrderBtn {
+    text-align: center;
+    margin: 20px;
+    background-color: rgb(242, 79, 19);
+    color: white;
+    text-decoration: none;
+    width: 300px;
+    padding: 10px;
+    font-size: 22px;
+    border-radius: 20px;
+}
+
+.btnBottom {
+    width: 100%;
+    margin: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menuDesc {
+    padding: 15px;
+    width: 100%;
+
+}
+.menuItem h2 {
+    color: rgb(242, 79, 19);
+}
+
+.priceAndReview {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+    align-items: center;
+    margin-top: 10px;
+}
+.reviews {
+    color: rgb(242, 79, 19);
+    text-decoration: none;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+@media screen and (max-width: 750px) {
+    .menu {
+        width: 95%;
+    }
+    .menuItems {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}

@@ -2,20 +2,64 @@
 from datetime import datetime, timedelta
 
 from flask import request, session
-from flask_login import current_user
 
 from .models import (
-  Categories, Ingredients, Tables, Dishes, Orders, Reviews, OrderItems
+  Categories, Ingredients, Tables, Dishes, Orders, Reviews, Accounts,
+  Employee, Clients, Cart
 )
 from . import db
 
 
+def update_user() -> [str, int]:
+  """ Updates user in the database. """
+  user_id = request.args.get("id")
+  user = Accounts.query.get(user_id)
+  if user.role == "client":
+    return update_client(user_id)
+  if user.role == "employee":
+    return update_employee(user_id)
+
+
+def update_client(user_id: str) -> [str, int]:
+  """ Updates client in the database. """
+  data = request.get_json()
+  user = Clients.query.filter_by(account_id=user_id).first()
+  if not user:
+    return "User not found!", 404
+  if "firstname" in data:
+    user.firstname = data.get("firstname")
+  if "lastname" in data:
+    user.lastname = data.get("lastname")
+  if "telephone" in data:
+    user.telephone = data.get("telephone")
+  db.session.commit()
+  return f"User with id {user.account_id} updated!", 200
+
+
+def update_employee(user_id: str) -> [str, int]:
+  """ Updates employee in the database. """
+  data = request.get_json()
+  user = Employee.query.filter_by(account_id=user_id).first()
+  if not user:
+    return "User not found!", 404
+  if "firstname" in data:
+    user.firstname = data.get("firstname")
+  if "lastname" in data:
+    user.lastname = data.get("lastname")
+  if "telephone" in data:
+    user.telephone = data.get("telephone")
+  if "position" in data:
+    user.position = data.get("position")
+  if "is_available" in data:
+    user.is_available = data.get("is_available")
+  if "description" in data:
+    user.description = data.get("description")
+  db.session.commit()
+  return f"User with id {user.account_id} updated!", 200
+
+
 def update_category() -> [str, int]:
   """ Updates category in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update a category!", 401
-  if current_user.role != "admin":
-    return "Only users with role 'admin' can update a category!", 403
   category_id = request.args.get("id")
   data = request.get_json()
   category = Categories.query.get(category_id)
@@ -29,10 +73,6 @@ def update_category() -> [str, int]:
 
 def update_ingredient() -> [str, int]:
   """ Updates ingredient in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update an ingredient!", 401
-  if current_user.role != "admin":
-    return "Only users with role 'admin' can update an ingredient!", 403
   ingredient_id = request.args.get("id")
   data = request.get_json()
   ingredient = Ingredients.query.get(ingredient_id)
@@ -46,10 +86,6 @@ def update_ingredient() -> [str, int]:
 
 def update_table() -> [str, int]:
   """ Updates table in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update a table!", 401
-  if current_user.role != "admin":
-    return "Only users with role 'admin' can update a table!", 403
   table_id = request.args.get("id")
   data = request.get_json()
   table = Tables.query.get(table_id)
@@ -65,10 +101,6 @@ def update_table() -> [str, int]:
 
 def update_dish() -> [str, int]:
   """ Updates dish in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update a table!", 401
-  if current_user.role not in ["admin", "employee"]:
-    return "Only users with role 'admin' or 'employee' can update a dish!", 403
   dish_id = request.args.get("id")
   data = request.get_json()
   dish = Dishes.query.get(dish_id)
@@ -95,8 +127,6 @@ def update_dish() -> [str, int]:
 
 def update_order() -> [str, int]:
   """ Updates order in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update an order!", 401
   order_id = request.args.get("id")
   data = request.get_json()
   order = Orders.query.get(order_id)
@@ -121,36 +151,29 @@ def update_order() -> [str, int]:
 
 def update_order_item() -> [str, int]:
   """ Updates order item in the session. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update an order item!", 401
   item_id = request.args.get("id")
   data = request.get_json()
-  items = session.get("cart", [])
-  item_exists = any(item["item_id"] == int(item_id) for item in items)
-  if not item_exists:
+  order_item = Cart.query.filter_by(cart_id=item_id).first()
+  if not order_item:
     return f"There is no item with id = {item_id} in a cart!", 404
-  for item in items:
-    if item["item_id"] == int(item_id):
-      if "dish_id" in data:
-        dish_id = data.get("dish_id")
-        try:
-          dish = Dishes.query.get(dish_id)
-          price = dish.price
-        except AttributeError:
-          return "Given dish id not found!", 404
-        item["dish_id"] = dish_id
-        item["price"] = price
-      if "quantity" in data:
-        quantity = data.get("quantity")
-        item["quantity"] = quantity
-  session["cart"] = items
+  if "dish_id" in data:
+    dish_id = data.get("dish_id")
+    try:
+      dish = Dishes.query.get(dish_id)
+      price = dish.price
+    except AttributeError:
+      return "Given dish id not found!", 404
+    order_item.dish_id = dish_id
+    order_item.price = price
+  if "quantity" in data:
+    quantity = data.get("quantity")
+    order_item.quantity = quantity
+  db.session.commit()
   return f"Order item with id {item_id} updated!", 200
 
 
 def update_review() -> [str, int]:
   """ Updates table in the database. """
-  if not current_user.is_authenticated:
-    return "Only authorized users can update a review!", 401
   review_id = request.args.get("id")
   data = request.get_json()
   review = Reviews.query.get(review_id)

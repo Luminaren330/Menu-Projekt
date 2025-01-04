@@ -5,10 +5,21 @@ const GlobalContext = React.createContext();
 const Context = ({ children }) => {
   const [isLogedIn, setIsLogedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isWorker, setIsWorker] = useState(false);
+  const [user, setUser] = useState({});
 
   return (
     <GlobalContext.Provider
-      value={{ isLogedIn, isAdmin, setIsAdmin, setIsLogedIn }}
+      value={{
+        isLogedIn,
+        isWorker,
+        isAdmin,
+        setIsAdmin,
+        setIsWorker,
+        setIsLogedIn,
+        user,
+        setUser,
+      }}
     >
       {children}
     </GlobalContext.Provider>

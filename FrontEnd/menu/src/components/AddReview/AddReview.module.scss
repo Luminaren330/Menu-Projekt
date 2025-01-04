@@ -1,0 +1,155 @@
+@import '../../App.scss';
+
+
+.container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 45px;
+    width: 80%;
+    background-color: white !important;
+    border-radius: 20px;
+}
+.header {
+    color: rgb(242, 79, 19);
+    font-weight: bold;
+    font-size: 35px;
+    margin-top: 30px;
+    text-align: center;
+}
+
+.form {
+    border: 2px solid rgb(242, 79, 19);
+    display: flex;
+    flex-direction: column;
+    margin: 30px 30px 0px 30px;
+    box-shadow: 10px 10px 5px rgb(209, 67, 15);
+    border-radius: 5px;
+}
+
+.stars {
+    margin: 0px 40px 30px 40px;
+}
+
+.formLabel {
+    color: rgb(242, 79, 19);
+    font-size: 25px;
+    font-weight: bold;
+    margin: 10px 0px 0px 40px;
+}
+
+.menuImage {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    gap: 10px;
+}
+.menuImage img {
+    width: 120px;
+    min-height: 120px;
+    height: 100%;
+    border-radius: 15px;
+}
+
+.format {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    width: 90%;
+}
+
+.smallForm {
+    padding-bottom: 5px;
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.formTextInput {    
+  height: 100px !important;   
+  resize: none;    
+  padding: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+  width: 90% !important;
+  margin: 0px 40px 30px 40px;
+  align-items: center;
+  border: 0.5px solid black;
+  border-radius: 5px;
+}
+
+@media screen and (max-width: 650px) {
+    .formTextInput { 
+        width: 70% !important;
+    }
+}
+
+.formInput {
+    width: 90%;
+    margin: 0px 40px 30px 40px;
+    align-items: center;
+    border: 0.5px solid black;
+    border-radius: 5px;
+    font-size: 20px;
+    padding: 5px;
+}
+
+.center {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.dropdown {
+    width: 90%;
+    margin: 0px 40px 30px 40px;
+    align-items: center;
+    border: 0.5px solid black;
+    border-radius: 5px;
+}
+
+.addProduct {
+    background-color: rgb(242, 79, 19);
+    color: white;
+    border-radius: 20px;
+    border: none;
+    padding: 10px;
+    font-size: 25px;
+    transition: all 0.3s ease-in;
+    margin: 15px;
+
+    &:hover {
+        cursor: pointer;
+        color: rgb(242, 79, 19);
+        background-color: white;
+        border: 1px solid rgb(242, 79, 19);
+    }  
+}
+
+.wrong {
+    text-align: center;
+    border-radius: 20px;
+    border: none;
+    margin: 10px;
+}
+
+.wrong h4 {
+    font-size: 20px;
+    color: red;
+    margin-top: 5px;
+}
+
+@media screen and (max-width: 1500px) {
+
+    .formInput {
+       width: 90%;
+   }  
+   
+}

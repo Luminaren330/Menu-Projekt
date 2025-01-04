@@ -1,0 +1,224 @@
+@import '../../App.scss';
+
+.container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 45px;
+    width: 1000px;
+    background-color: white !important;
+    border-radius: 20px;
+}
+.hourPick {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: rgb(242, 79, 19);
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+
+.centeredPicker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.datePicker {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+.menuHeader { 
+    color: rgb(242, 79, 19);
+    text-align: center;
+    font-size: 40px;
+    margin-top: 10px;
+}
+
+.centerLay {
+    display: flex;
+    justify-content: center;
+}
+
+.layout {
+    display: grid;
+    width: 1000px;
+    grid-template-columns: 270px 270px 270px;
+    background: url("../../images/sala4.png") center no-repeat;
+    background-size: cover;
+    border: 2px solid black;
+    justify-content: center;
+    border-radius: 15px;
+    height: 750px;
+    padding-bottom: 60px;
+    padding-right: 170px;
+    gap: 0px;
+}
+
+
+.seat:nth-child(-n+7) {
+    align-self: start; 
+}
+
+.seat:nth-child(n+7) { 
+    align-self: end; 
+}
+
+.active {
+    cursor: pointer;
+    background-color: green;
+}
+
+.selected {
+    background-color: aqua;
+}
+
+.selectedInfo {
+    margin-top: 10px;
+    font-size: 18px;
+    font-weight: bold;
+    color: rgb(242, 79, 19);
+}
+
+.boxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-weight: bold;
+    margin-top: 15px;
+}
+
+.legendText {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.legendLeft { 
+    width: 90%;
+}
+.legend {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    margin: 10px;
+}
+
+.box {
+    width: 20px;
+    height: 20px;
+    border: 1px solid black;
+    margin-right: 5px;
+}
+
+.box1 {
+    background-color: #1c4f2fff;
+}
+
+.box2 {
+    background-color: #797f84ff;
+}
+
+.box3 {
+    background-color: #2f89a2ff;
+}
+
+.tableAndButton {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.yourOrderBtn {
+    text-align: center;
+    margin: 20px;
+    background-color: rgb(242, 79, 19);
+    color: white;
+    text-decoration: none;
+    width: 300px;
+    padding: 10px;
+    font-size: 22px;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+}
+
+.form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: left;
+}
+
+.seatImage {
+    min-width: 100px;
+    height: 100px;
+    margin-right: 100px;
+}
+
+.timeInputContainer
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.timeInput {
+    width: 30%;
+    margin: 20px;
+}
+
+.wrong {
+    text-align: center;
+    color: red;
+    font-weight: bold;
+}
+
+.seatWrapper {
+    position: relative;
+    display: inline-block;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+  
+  .tooltip {
+    position: absolute;
+    bottom: 65%; 
+    left: 60%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.75); 
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9em;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+  }
+
+  &:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+

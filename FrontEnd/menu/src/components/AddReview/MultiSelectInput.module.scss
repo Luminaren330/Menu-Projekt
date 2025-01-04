@@ -1,0 +1,68 @@
+.multiSelectContainer {
+  margin-bottom: 20px;
+}
+
+.formLabel {
+    color: rgb(242, 79, 19);
+    font-size: 25px;
+    font-weight: bold;
+    margin: 10px 0px 0px 40px;
+}
+
+.multiSelect {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+  user-select: none;
+  width: 90%;
+  margin: 0px 40px 30px 40px;
+  align-items: center;
+  border: 0.5px solid black;
+  border-radius: 5px;
+  font-size: 20px;
+  padding: 5px;
+}
+
+.selectedItems {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.placeholder {
+  color: #aaa;
+}
+
+.arrow {
+  font-size: 12px;
+}
+
+.dropdownList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 150px;
+  overflow-y: auto;
+  z-index: 1000;
+}
+
+.dropdownItem {
+  padding: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dropdownItem:hover {
+  background: #f0f0f0;
+}
+
+.selected {
+  font-weight: bold;
+  background: #e0e0e0;
+}
