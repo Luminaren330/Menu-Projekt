@@ -1,0 +1,128 @@
+@import '../../App.scss';
+
+.section {
+  width: 90vw;
+  margin: 5rem auto;
+  max-width: 1170px;
+  background-color: white;
+  border-radius: 20px;
+  min-height: 220px;
+}
+
+.title {
+  margin-bottom: 4rem;
+  text-align: center;
+  color: rgb(242, 79, 19);
+}
+
+.underline {
+  width: 140px;
+  height: 3px;
+  background: rgb(242, 79, 19);
+  margin: 5px auto 0px auto;
+}
+
+.workers {
+  width: 80vw;
+  margin: 0 auto;
+  max-width: 1170px;
+}
+
+.names {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-bottom: 50px;
+  flex-wrap: wrap;
+}
+
+.nameBtn {
+  background: transparent;
+  border-color: transparent;
+  font-size: 25px;
+  margin: 0 40px;
+  transition: all 0.3s ease-in;
+  padding: 5px;
+  color: rgb(242, 79, 19);
+  &:hover {
+    cursor: pointer;
+    border-bottom: 2px solid rgb(242, 79, 19);
+  }
+}
+
+.activeBtn {
+  color: rgb(242, 79, 19);
+  border-bottom: 2px solid rgb(242, 79, 19);
+}
+.add {
+  margin-top: 20px;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.addWorker {
+  background-color: rgb(242, 79, 19);
+  color: white;
+  border-radius: 20px;
+  padding: 10px;
+  border: none;
+  align-items: center;
+  transition: all 0.3s ease-in;
+  text-decoration: none;
+  margin-left: 5px;
+
+  &:hover {
+    cursor: pointer;
+    background-color: white;
+    color: rgb(242, 79, 19);
+    border: 1px solid rgb(242, 79, 19);
+  }
+}
+
+.newBtns {
+  margin-top: 20px;
+}
+
+.worker h3,  h4 {
+  color:rgb(242, 79, 19);
+  text-align: center;
+  margin-top: 20px;
+}
+
+.worker h3 {
+  font-size: 30px;
+}
+
+.worker h4 { 
+  font-size: 20px;
+}
+
+.phone {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.phone p {
+  color: rgb(242, 79, 19);
+  font-size: 20px;
+}
+
+@media screen and (min-width: 992px) { 
+  .workers {
+    width: 90vw;
+    display: grid;
+    grid-template-columns: 200px auto;
+    column-gap: 50px;
+  }
+  .names {
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  .nameBtn {
+    margin-bottom: 1rem;
+  }
+ 
+}

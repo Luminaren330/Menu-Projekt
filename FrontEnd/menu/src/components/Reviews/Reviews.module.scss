@@ -1,0 +1,89 @@
+@import '../../App.scss';
+
+
+.container {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.menu {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    margin-top: 45px;
+    width: 80%;
+    background-color: white !important;
+    border-radius: 20px;
+}
+
+.menuHeader {
+    text-align: center;
+    color: rgb(242, 79, 19);
+    padding: 10px;
+    margin-top: 10px;
+}
+
+.user {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    margin-left: 30px;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.icon {
+    font-size: 40px;
+    color: rgb(242, 79, 19);
+}
+
+.userStars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    width: 100%;
+}
+
+.stars {
+    font-size: 30px;
+}
+
+.message { 
+    border: 1px solid rgb(242, 79, 19);
+    border-radius: 0px 15px 15px 15px;
+    padding-bottom: 10px;
+    padding-left: 20px;
+    padding-right: 20px;
+    width: 90%;
+}
+
+.yourOrderBtn {
+    text-align: center;
+    margin: 20px;
+    background-color: rgb(242, 79, 19);
+    color: white;
+    text-decoration: none;
+    width: 300px;
+    padding: 10px;
+    font-size: 22px;
+    border-radius: 20px;
+}
+
+.btnBottom {
+    width: 100%;
+    margin: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+
+@media screen and (max-width: 750px) {
+    .menu {
+        width: 95%;
+    }
+
+}

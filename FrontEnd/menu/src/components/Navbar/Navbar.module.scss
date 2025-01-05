@@ -1,0 +1,110 @@
+@import '../../App.scss';
+
+.navbar {
+  background-color: rgb(33, 33, 33);
+  box-shadow: 0 5px 15px rgba(33, 33, 33,0.1);
+  max-height: 100;
+}
+
+.links_container {
+  height: 0;
+  overflow: hidden;
+  transition: all 0.3s linear;
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+}
+
+.nav_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.links a,
+li {
+  text-decoration: none;
+  color: rgb(242, 79, 19);
+  font-size: 20px;
+  text-transform: capitalize;
+  letter-spacing: .04rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0.5rem;
+  transition: all 0.3s linear;
+}
+
+.links a:hover {
+  color: rgb(209, 67, 15);
+}
+.nav_toggle {
+  font-size: 25px;
+  color: rgb(242, 79, 19);
+  background: transparent;
+  border-color: transparent;
+  transition: all 0.3s linear;
+  cursor: pointer;
+
+  &:hover {
+    transform: rotate(90deg);
+  }
+}
+
+.logout_button {
+  color: #fff;
+  background-color: rgb(242, 79, 19);
+  padding: 0.8rem;
+  border-radius: 15px;
+  border: none;
+  transition: all 0.3s ease;
+  font-size: 15px;
+  font-weight: bold;
+  border: 1px solid rgb(242, 79, 19);
+
+  &:hover {
+    color: rgb(242, 79, 19);
+    background-color: #fff;
+    cursor: pointer;
+  }
+}
+
+@media screen and (min-width: 1320px) {
+  .nav_center {
+    margin-left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding:  0 0.7rem;
+  }
+  .nav_header {
+    padding: 0;
+  }
+  .nav_toggle {
+    display: none;
+  }
+  .links_container {
+    height: auto !important;
+    display: flex;
+  }
+  .links {
+    display: flex;
+  }
+
+  .links a {
+    text-decoration: none;
+    font-size: 20px;
+    color: rgb(242, 79, 19);
+    padding: 0;
+    margin: 0 2rem;
+    text-transform: capitalize;
+    letter-spacing: .04rem
+  }
+  .links a:hover {
+    color: rgb(209, 67, 15);
+  }
+}
