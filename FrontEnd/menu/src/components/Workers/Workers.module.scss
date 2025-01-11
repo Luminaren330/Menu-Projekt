@@ -34,6 +34,9 @@
   justify-content: space-evenly;
   margin-bottom: 50px;
   flex-wrap: wrap;
+  border: 2px solid rgb(242, 79, 19);
+  margin-left: 20px;
+  border-radius: 15px;
 }
 
 .nameBtn {
@@ -98,12 +101,33 @@
   font-size: 20px;
 }
 
+.workerData {
+  border: 2px solid rgb(242, 79, 19);
+  margin-right: 30px;
+  border-radius: 15px;
+}
+
 .phone {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  // justify-content: space-between;
   margin-top: 20px;
+  border-bottom: 2px solid rgb(242, 79, 19);
+
 }
+
+.workerData .phone:nth-child(3) {
+  border: none !important;
+}
+
+.phone p:nth-child(1) {
+  width: 150px;
+}
+
+.phone p:nth-child(2), .phone input {
+  margin-left: 100px;
+}
+
 
 .phone p {
   color: rgb(242, 79, 19);
@@ -125,4 +149,18 @@
     margin-bottom: 1rem;
   }
  
+}
+
+@media screen and (max-width: 500px) {
+  .phone p:nth-child(1) {
+  width: auto
+}
+
+.workerData {
+  margin-right: 0;
+}
+
+.phone p:nth-child(2), .phone input {
+  margin-left: 10px;
+}
 }

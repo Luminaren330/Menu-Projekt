@@ -12,12 +12,23 @@ const OrderItems = () => {
   const { user } = useGlobalContext();
 
   const [orders, setOrders] = useState([]);
+  const [tempQuantities, setTempQuantities] = useState({});
   const [totalPrice, setTotalPrice] = useState(0);
   const [isPressed, setIsPressed] = useState(false);
+
   const getOrderItems = useCallback(() => {
     Axios.get(`http://127.0.01:5000/carts?user_id=${user.user_id}`)
       .then((res) => {
-        setOrders(res.data.records || []);
+        const records = res.data.records || [];
+        setOrders(records);
+        const initialQuantities = records.reduce(
+          (acc, record) => ({
+            ...acc,
+            [record.item_id]: record.quantity,
+          }),
+          {}
+        );
+        setTempQuantities(initialQuantities);
       })
       .catch((err) => {
         console.error("Błąd podczas pobierania zamówień:", err);
@@ -42,7 +53,7 @@ const OrderItems = () => {
     Axios.delete(`http://127.0.01:5000/carts?id=${id}`)
       .then(() => {
         setOrders((prevOrders) =>
-          prevOrders.filter((order) => order.id !== id)
+          prevOrders.filter((order) => order.item_id !== id)
         );
         alert("Zamówienie zostało usunięte.");
         setIsPressed(true);
@@ -72,6 +83,12 @@ const OrderItems = () => {
       });
   };
 
+  const handleQuantityChange = (itemId, value) => {
+    if (value >= 1) {
+      setTempQuantities((prev) => ({ ...prev, [itemId]: value }));
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -98,18 +115,12 @@ const OrderItems = () => {
                           <input
                             type="number"
                             min="1"
-                            defaultValue={product.quantity}
+                            value={tempQuantities[product.item_id] || ""}
                             className={styles.quantityInput}
                             onChange={(e) =>
-                              setOrders((prevOrders) =>
-                                prevOrders.map((order) =>
-                                  order.item_id === product.item_id
-                                    ? {
-                                        ...order,
-                                        quantity: parseInt(e.target.value),
-                                      }
-                                    : order
-                                )
+                              handleQuantityChange(
+                                product.item_id,
+                                parseInt(e.target.value)
                               )
                             }
                           />
@@ -118,7 +129,7 @@ const OrderItems = () => {
                             onClick={() =>
                               updateOrderQuantity(
                                 product.dish_id,
-                                product.quantity,
+                                tempQuantities[product.item_id],
                                 product.item_id
                               )
                             }
@@ -128,6 +139,9 @@ const OrderItems = () => {
                         </div>
                       </div>
                       <p>{product.description}</p>
+                      <p className={styles.menuPrice}>
+                        Ilość: {product.quantity}
+                      </p>
                       <p className={styles.menuPrice}>
                         Cena: {product.price_per_item} zł
                       </p>

@@ -17,6 +17,7 @@ const AddNewProduct = () => {
   const [unitPrice, setUnitPrice] = useState(0);
   const [category, setCategory] = useState("");
   const [wrong, setWrong] = useState(false);
+  const [noPhotos, setNoPhotos] = useState(false);
   const [badPrice, setBadPrice] = useState(false);
   const navigate = useNavigate();
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -50,10 +51,13 @@ const AddNewProduct = () => {
   const addNewProduct = () => {
     setBadPrice(false);
     setWrong(false);
+    setNoPhotos(false);
     if (name.length < 5 || description.length < 5) {
       setWrong(true);
     } else if (unitPrice <= 0) {
       setBadPrice(true);
+    } else if (!photo) {
+      setNoPhotos(true);
     } else {
       const formData = new FormData();
       formData.append("category", category);
@@ -127,6 +131,11 @@ const AddNewProduct = () => {
               {badPrice && (
                 <div className={styles.wrong}>
                   <h4>Cena jest mniejsza od 0</h4>
+                </div>
+              )}
+              {noPhotos && (
+                <div className={styles.wrong}>
+                  <h4>Nie dodano zdjęcia</h4>
                 </div>
               )}
             </div>

@@ -71,7 +71,10 @@ const AddReview = () => {
           <div className={styles.form}>
             <h2 className={styles.header}>Dodaj nową recenzję</h2>
             <div className={styles.menuImage}>
-              <img src={dish.photo_url} alt={dish.name} />
+              <img
+                src={`/${dish.photo_url?.split("\\").slice(-2).join("/")}`}
+                alt={dish.name}
+              />
               <h2>{dish.name}</h2>
             </div>
             <TextAreaInput string="Recenzja: " setParameter={setComment} />

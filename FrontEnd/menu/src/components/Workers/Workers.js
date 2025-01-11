@@ -118,44 +118,46 @@ const Workers = () => {
                 position
               )}
             </h4>
-            <div className={styles.phone}>
-              <p>Nr telefonu: </p>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name="telephone"
-                  value={editedWorker.telephone}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p>{telephone}</p>
-              )}
-            </div>
-            <div className={styles.phone}>
-              <p>Email: </p>
-              {isEditing ? (
-                <input
-                  type="email"
-                  name="email"
-                  value={editedWorker.email}
-                  onChange={handleChange}
-                />
-              ) : (
-                <p>{email}</p>
-              )}
-            </div>
-            <div className={styles.phone}>
-              <p>Czy jest dostępny: </p>
-              {isEditing ? (
-                <input
-                  type="checkbox"
-                  name="is_available"
-                  checked={editedWorker.is_available}
-                  onChange={handleChange}
-                />
-              ) : (
-                <input type="checkbox" checked={is_available} readOnly />
-              )}
+            <div className={styles.workerData}>
+              <div className={styles.phone}>
+                <p>Nr telefonu: </p>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name="telephone"
+                    value={editedWorker.telephone}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p>{telephone}</p>
+                )}
+              </div>
+              <div className={styles.phone}>
+                <p>Email: </p>
+                {isEditing ? (
+                  <input
+                    type="email"
+                    name="email"
+                    value={editedWorker.email}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <p>{email}</p>
+                )}
+              </div>
+              <div className={styles.phone}>
+                <p>Czy jest dostępny: </p>
+                {isEditing ? (
+                  <input
+                    type="checkbox"
+                    name="is_available"
+                    checked={editedWorker.is_available}
+                    onChange={handleChange}
+                  />
+                ) : (
+                  <input type="checkbox" checked={is_available} readOnly />
+                )}
+              </div>
             </div>
             <div className={styles.add}>
               <Link to="/workers/addworker" className={styles.addWorker}>

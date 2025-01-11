@@ -12,6 +12,7 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState(0);
   const [isRegister, setIsRegister] = useState(false);
+  const [wrong, setWrong] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,30 +28,35 @@ const Login = () => {
   }, [setIsLogedIn, setIsAdmin, setUser, navigate]);
 
   const handleLogin = () => {
+    setWrong(false);
     Axios.post("http://127.0.0.1:5000/login", {
       email: login,
       password: password,
-    }).then((res) => {
-      if (res.data.message === "Logged in successfully!") {
-        const userData = {
-          email: login,
-          role: res.data.user_data.role,
-          user_id: res.data.user_data.user_id,
-        };
-        setIsLogedIn(true);
-        setUser(userData);
-        localStorage.setItem("user", JSON.stringify(userData));
-        if (res.data.user_data.role === "admin") {
-          setIsAdmin(true);
-        } else if (res.data.user_data.role === "employee") {
-          setIsWorker(true);
+    })
+      .then((res) => {
+        if (res.data.message === "Logged in successfully!") {
+          const userData = {
+            email: login,
+            role: res.data.user_data.role,
+            user_id: res.data.user_data.user_id,
+          };
+          setIsLogedIn(true);
+          setUser(userData);
+          localStorage.setItem("user", JSON.stringify(userData));
+          if (res.data.user_data.role === "admin") {
+            setIsAdmin(true);
+          } else if (res.data.user_data.role === "employee") {
+            setIsWorker(true);
+          }
+          alert("Pomyslnie zalogowano");
+          navigate("/dashboard");
+        } else {
+          alert("Niepoprawne dane logowania");
         }
-        alert("Pomyslnie zalogowano");
-        navigate("/dashboard");
-      } else {
-        alert("Niepoprawne dane logowania");
-      }
-    });
+      })
+      .catch((error) => {
+        setWrong(true);
+      });
   };
 
   const handleRegister = () => {
@@ -130,6 +136,10 @@ const Login = () => {
             </div>
           </div>
         )}
+
+        {wrong ? (
+          <div className={styles.wrong}>Niepoprawne dane logowania</div>
+        ) : null}
 
         {isRegister ? (
           <button className={styles.button} onClick={handleRegister}>
