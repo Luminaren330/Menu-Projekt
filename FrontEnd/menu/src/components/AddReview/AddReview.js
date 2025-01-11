@@ -66,6 +66,7 @@ const AddReview = () => {
           onClose={() => togglePopup(false)}
         />
       )}
+
       <div className={styles.container}>
         <div className={styles.menu}>
           <div className={styles.form}>
